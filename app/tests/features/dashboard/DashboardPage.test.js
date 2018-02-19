@@ -1,20 +1,20 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { expect } from 'chai';
-import { DefaultPage } from 'src/features/dashboard/DefaultPage';
+import { DashboardPage } from 'src/features/dashboard/DashboardPage';
 
-describe('dashboard/DefaultPage', () => {
+describe('dashboard/DashboardPage', () => {
   it('renders node with correct class name', () => {
     const props = {
       dashboard: {},
       actions: {},
     };
     const renderedComponent = shallow(
-      <DefaultPage {...props} />
+      <DashboardPage {...props} />
     );
 
     expect(
-      renderedComponent.find('.dashboard-default-page').getElement()
+      renderedComponent.find('.dashboard-dashboard-page').getElement()
     ).to.exist;
   });
 });

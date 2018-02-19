@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 
-export class DefaultPage extends Component {
+export class DashboardPage extends Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired,
     actions: PropTypes.object.isRequired,
@@ -12,7 +12,7 @@ export class DefaultPage extends Component {
 
   render() {
     return (
-      <div className="dashboard-default-page">
+      <div className="dashboard-dashboard-page">
         Page Content: dashboard/DefaultPage
       </div>
     );
@@ -36,4 +36,4 @@ function mapDispatchToProps(dispatch) {
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(DefaultPage);
+)(DashboardPage);
