@@ -10,15 +10,15 @@ export const typeDefs = `
 #
 
 type Church implements Node {
-  floors(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Floor!]
   id: ID!
   name: String
+  floors(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Floor!]
 }
 
 type Floor implements Node {
-  church(where: ChurchWhereInput): Church!
   id: ID!
   name: String
+  church(where: ChurchWhereInput): Church!
   rooms(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Room!]
 }
 
@@ -32,10 +32,22 @@ type Post implements Node {
   author(where: UserWhereInput): User!
 }
 
+type RentRequest implements Node {
+  id: ID!
+  user(where: UserWhereInput): User!
+  status: REQUEST_STATUS
+}
+
 type Room implements Node {
-  floor(where: FloorWhereInput): Floor!
   id: ID!
   name: String
+  floor(where: FloorWhereInput): Floor!
+}
+
+type Schedule implements Node {
+  id: ID!
+  booker(where: UserWhereInput): User!
+  roomStatus: ROOM_STATUS
 }
 
 type User implements Node {
@@ -63,7 +75,15 @@ type AggregatePost {
   count: Int!
 }
 
+type AggregateRentRequest {
+  count: Int!
+}
+
 type AggregateRoom {
+  count: Int!
+}
+
+type AggregateSchedule {
   count: Int!
 }
 
@@ -380,31 +400,43 @@ type Mutation {
   createChurch(data: ChurchCreateInput!): Church!
   createFloor(data: FloorCreateInput!): Floor!
   createRoom(data: RoomCreateInput!): Room!
+  createSchedule(data: ScheduleCreateInput!): Schedule!
+  createRentRequest(data: RentRequestCreateInput!): RentRequest!
   updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   updateChurch(data: ChurchUpdateInput!, where: ChurchWhereUniqueInput!): Church
   updateFloor(data: FloorUpdateInput!, where: FloorWhereUniqueInput!): Floor
   updateRoom(data: RoomUpdateInput!, where: RoomWhereUniqueInput!): Room
+  updateSchedule(data: ScheduleUpdateInput!, where: ScheduleWhereUniqueInput!): Schedule
+  updateRentRequest(data: RentRequestUpdateInput!, where: RentRequestWhereUniqueInput!): RentRequest
   deletePost(where: PostWhereUniqueInput!): Post
   deleteUser(where: UserWhereUniqueInput!): User
   deleteChurch(where: ChurchWhereUniqueInput!): Church
   deleteFloor(where: FloorWhereUniqueInput!): Floor
   deleteRoom(where: RoomWhereUniqueInput!): Room
+  deleteSchedule(where: ScheduleWhereUniqueInput!): Schedule
+  deleteRentRequest(where: RentRequestWhereUniqueInput!): RentRequest
   upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   upsertChurch(where: ChurchWhereUniqueInput!, create: ChurchCreateInput!, update: ChurchUpdateInput!): Church!
   upsertFloor(where: FloorWhereUniqueInput!, create: FloorCreateInput!, update: FloorUpdateInput!): Floor!
   upsertRoom(where: RoomWhereUniqueInput!, create: RoomCreateInput!, update: RoomUpdateInput!): Room!
+  upsertSchedule(where: ScheduleWhereUniqueInput!, create: ScheduleCreateInput!, update: ScheduleUpdateInput!): Schedule!
+  upsertRentRequest(where: RentRequestWhereUniqueInput!, create: RentRequestCreateInput!, update: RentRequestUpdateInput!): RentRequest!
   updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
   updateManyChurches(data: ChurchUpdateInput!, where: ChurchWhereInput!): BatchPayload!
   updateManyFloors(data: FloorUpdateInput!, where: FloorWhereInput!): BatchPayload!
   updateManyRooms(data: RoomUpdateInput!, where: RoomWhereInput!): BatchPayload!
+  updateManySchedules(data: ScheduleUpdateInput!, where: ScheduleWhereInput!): BatchPayload!
+  updateManyRentRequests(data: RentRequestUpdateInput!, where: RentRequestWhereInput!): BatchPayload!
   deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
   deleteManyChurches(where: ChurchWhereInput!): BatchPayload!
   deleteManyFloors(where: FloorWhereInput!): BatchPayload!
   deleteManyRooms(where: RoomWhereInput!): BatchPayload!
+  deleteManySchedules(where: ScheduleWhereInput!): BatchPayload!
+  deleteManyRentRequests(where: RentRequestWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -603,17 +635,117 @@ type Query {
   churches(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Church]!
   floors(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Floor]!
   rooms(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Room]!
+  schedules(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Schedule]!
+  rentRequests(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RentRequest]!
   post(where: PostWhereUniqueInput!): Post
   user(where: UserWhereUniqueInput!): User
   church(where: ChurchWhereUniqueInput!): Church
   floor(where: FloorWhereUniqueInput!): Floor
   room(where: RoomWhereUniqueInput!): Room
+  schedule(where: ScheduleWhereUniqueInput!): Schedule
+  rentRequest(where: RentRequestWhereUniqueInput!): RentRequest
   postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
   churchesConnection(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ChurchConnection!
   floorsConnection(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FloorConnection!
   roomsConnection(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RoomConnection!
+  schedulesConnection(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ScheduleConnection!
+  rentRequestsConnection(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RentRequestConnection!
   node(id: ID!): Node
+}
+
+type RentRequestConnection {
+  pageInfo: PageInfo!
+  edges: [RentRequestEdge]!
+  aggregate: AggregateRentRequest!
+}
+
+input RentRequestCreateInput {
+  status: REQUEST_STATUS
+  user: UserCreateOneInput!
+}
+
+type RentRequestEdge {
+  node: RentRequest!
+  cursor: String!
+}
+
+enum RentRequestOrderByInput {
+  id_ASC
+  id_DESC
+  status_ASC
+  status_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type RentRequestPreviousValues {
+  id: ID!
+  status: REQUEST_STATUS
+}
+
+type RentRequestSubscriptionPayload {
+  mutation: MutationType!
+  node: RentRequest
+  updatedFields: [String!]
+  previousValues: RentRequestPreviousValues
+}
+
+input RentRequestSubscriptionWhereInput {
+  AND: [RentRequestSubscriptionWhereInput!]
+  OR: [RentRequestSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: RentRequestWhereInput
+}
+
+input RentRequestUpdateInput {
+  status: REQUEST_STATUS
+  user: UserUpdateOneInput
+}
+
+input RentRequestWhereInput {
+  AND: [RentRequestWhereInput!]
+  OR: [RentRequestWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  status: REQUEST_STATUS
+  status_not: REQUEST_STATUS
+  status_in: [REQUEST_STATUS!]
+  status_not_in: [REQUEST_STATUS!]
+  user: UserWhereInput
+}
+
+input RentRequestWhereUniqueInput {
+  id: ID
+}
+
+enum REQUEST_STATUS {
+  SUBMITTED
+  PENDING
+  REJECTED
+  APPROVED
+}
+
+enum ROOM_STATUS {
+  FREE
+  INUSE
 }
 
 type RoomConnection {
@@ -741,12 +873,96 @@ input RoomWhereUniqueInput {
   id: ID
 }
 
+type ScheduleConnection {
+  pageInfo: PageInfo!
+  edges: [ScheduleEdge]!
+  aggregate: AggregateSchedule!
+}
+
+input ScheduleCreateInput {
+  roomStatus: ROOM_STATUS
+  booker: UserCreateOneInput!
+}
+
+type ScheduleEdge {
+  node: Schedule!
+  cursor: String!
+}
+
+enum ScheduleOrderByInput {
+  id_ASC
+  id_DESC
+  roomStatus_ASC
+  roomStatus_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type SchedulePreviousValues {
+  id: ID!
+  roomStatus: ROOM_STATUS
+}
+
+type ScheduleSubscriptionPayload {
+  mutation: MutationType!
+  node: Schedule
+  updatedFields: [String!]
+  previousValues: SchedulePreviousValues
+}
+
+input ScheduleSubscriptionWhereInput {
+  AND: [ScheduleSubscriptionWhereInput!]
+  OR: [ScheduleSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: ScheduleWhereInput
+}
+
+input ScheduleUpdateInput {
+  roomStatus: ROOM_STATUS
+  booker: UserUpdateOneInput
+}
+
+input ScheduleWhereInput {
+  AND: [ScheduleWhereInput!]
+  OR: [ScheduleWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  roomStatus: ROOM_STATUS
+  roomStatus_not: ROOM_STATUS
+  roomStatus_in: [ROOM_STATUS!]
+  roomStatus_not_in: [ROOM_STATUS!]
+  booker: UserWhereInput
+}
+
+input ScheduleWhereUniqueInput {
+  id: ID
+}
+
 type Subscription {
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
   church(where: ChurchSubscriptionWhereInput): ChurchSubscriptionPayload
   floor(where: FloorSubscriptionWhereInput): FloorSubscriptionPayload
   room(where: RoomSubscriptionWhereInput): RoomSubscriptionPayload
+  schedule(where: ScheduleSubscriptionWhereInput): ScheduleSubscriptionPayload
+  rentRequest(where: RentRequestSubscriptionWhereInput): RentRequestSubscriptionPayload
 }
 
 type UserConnection {
@@ -760,6 +976,11 @@ input UserCreateInput {
   password: String!
   name: String!
   posts: PostCreateManyWithoutAuthorInput
+}
+
+input UserCreateOneInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
 }
 
 input UserCreateOneWithoutPostsInput {
@@ -817,11 +1038,32 @@ input UserSubscriptionWhereInput {
   node: UserWhereInput
 }
 
+input UserUpdateDataInput {
+  email: String
+  password: String
+  name: String
+  posts: PostUpdateManyWithoutAuthorInput
+}
+
 input UserUpdateInput {
   email: String
   password: String
   name: String
   posts: PostUpdateManyWithoutAuthorInput
+}
+
+input UserUpdateNestedInput {
+  where: UserWhereUniqueInput!
+  data: UserUpdateDataInput!
+}
+
+input UserUpdateOneInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: UserWhereUniqueInput
+  delete: UserWhereUniqueInput
+  update: UserUpdateNestedInput
+  upsert: UserUpsertNestedInput
 }
 
 input UserUpdateOneWithoutPostsInput {
@@ -842,6 +1084,12 @@ input UserUpdateWithoutPostsDataInput {
 input UserUpdateWithoutPostsInput {
   where: UserWhereUniqueInput!
   data: UserUpdateWithoutPostsDataInput!
+}
+
+input UserUpsertNestedInput {
+  where: UserWhereUniqueInput!
+  update: UserUpdateDataInput!
+  create: UserCreateInput!
 }
 
 input UserUpsertWithoutPostsInput {
@@ -920,20 +1168,6 @@ input UserWhereUniqueInput {
 }
 `
 
-export type UserOrderByInput = 
-  'id_ASC' |
-  'id_DESC' |
-  'email_ASC' |
-  'email_DESC' |
-  'password_ASC' |
-  'password_DESC' |
-  'name_ASC' |
-  'name_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC'
-
 export type PostOrderByInput = 
   'id_ASC' |
   'id_DESC' |
@@ -947,6 +1181,20 @@ export type PostOrderByInput =
   'title_DESC' |
   'text_ASC' |
   'text_DESC'
+
+export type UserOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'email_ASC' |
+  'email_DESC' |
+  'password_ASC' |
+  'password_DESC' |
+  'name_ASC' |
+  'name_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC'
 
 export type ChurchOrderByInput = 
   'id_ASC' |
@@ -978,15 +1226,43 @@ export type RoomOrderByInput =
   'createdAt_ASC' |
   'createdAt_DESC'
 
+export type ROOM_STATUS = 
+  'FREE' |
+  'INUSE'
+
 export type MutationType = 
   'CREATED' |
   'UPDATED' |
   'DELETED'
 
-export interface FloorCreateInput {
+export type ScheduleOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'roomStatus_ASC' |
+  'roomStatus_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC'
+
+export type REQUEST_STATUS = 
+  'SUBMITTED' |
+  'PENDING' |
+  'REJECTED' |
+  'APPROVED'
+
+export type RentRequestOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'status_ASC' |
+  'status_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC'
+
+export interface RoomCreateWithoutFloorInput {
   name?: String
-  church: ChurchCreateOneWithoutFloorsInput
-  rooms?: RoomCreateManyWithoutFloorInput
 }
 
 export interface PostWhereInput {
@@ -1055,56 +1331,14 @@ export interface PostWhereInput {
   author?: UserWhereInput
 }
 
-export interface FloorUpdateWithoutChurchDataInput {
+export interface FloorCreateWithoutRoomsInput {
   name?: String
-  rooms?: RoomUpdateManyWithoutFloorInput
+  church: ChurchCreateOneWithoutFloorsInput
 }
 
-export interface PostUpsertWithoutAuthorInput {
-  where: PostWhereUniqueInput
-  update: PostUpdateWithoutAuthorDataInput
-  create: PostCreateWithoutAuthorInput
-}
-
-export interface FloorUpdateWithoutChurchInput {
-  where: FloorWhereUniqueInput
-  data: FloorUpdateWithoutChurchDataInput
-}
-
-export interface FloorCreateOneWithoutRoomsInput {
-  create?: FloorCreateWithoutRoomsInput
-  connect?: FloorWhereUniqueInput
-}
-
-export interface FloorUpdateManyWithoutChurchInput {
-  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
-  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  disconnect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  delete?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  update?: FloorUpdateWithoutChurchInput[] | FloorUpdateWithoutChurchInput
-  upsert?: FloorUpsertWithoutChurchInput[] | FloorUpsertWithoutChurchInput
-}
-
-export interface FloorSubscriptionWhereInput {
-  AND?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
-  OR?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: FloorWhereInput
-}
-
-export interface PostCreateInput {
-  isPublished?: Boolean
-  title: String
-  text: String
-  author: UserCreateOneWithoutPostsInput
-}
-
-export interface FloorWhereInput {
-  AND?: FloorWhereInput[] | FloorWhereInput
-  OR?: FloorWhereInput[] | FloorWhereInput
+export interface ChurchWhereInput {
+  AND?: ChurchWhereInput[] | ChurchWhereInput
+  OR?: ChurchWhereInput[] | ChurchWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1133,15 +1367,122 @@ export interface FloorWhereInput {
   name_not_starts_with?: String
   name_ends_with?: String
   name_not_ends_with?: String
-  church?: ChurchWhereInput
-  rooms_every?: RoomWhereInput
-  rooms_some?: RoomWhereInput
-  rooms_none?: RoomWhereInput
+  floors_every?: FloorWhereInput
+  floors_some?: FloorWhereInput
+  floors_none?: FloorWhereInput
 }
 
-export interface UserCreateOneWithoutPostsInput {
-  create?: UserCreateWithoutPostsInput
+export interface ScheduleCreateInput {
+  roomStatus?: ROOM_STATUS
+  booker: UserCreateOneInput
+}
+
+export interface RoomWhereInput {
+  AND?: RoomWhereInput[] | RoomWhereInput
+  OR?: RoomWhereInput[] | RoomWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  name?: String
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  floor?: FloorWhereInput
+}
+
+export interface RoomUpsertWithoutFloorInput {
+  where: RoomWhereUniqueInput
+  update: RoomUpdateWithoutFloorDataInput
+  create: RoomCreateWithoutFloorInput
+}
+
+export interface PostUpsertWithoutAuthorInput {
+  where: PostWhereUniqueInput
+  update: PostUpdateWithoutAuthorDataInput
+  create: PostCreateWithoutAuthorInput
+}
+
+export interface RoomUpdateWithoutFloorDataInput {
+  name?: String
+}
+
+export interface UserCreateOneInput {
+  create?: UserCreateInput
   connect?: UserWhereUniqueInput
+}
+
+export interface RoomUpdateWithoutFloorInput {
+  where: RoomWhereUniqueInput
+  data: RoomUpdateWithoutFloorDataInput
+}
+
+export interface ScheduleSubscriptionWhereInput {
+  AND?: ScheduleSubscriptionWhereInput[] | ScheduleSubscriptionWhereInput
+  OR?: ScheduleSubscriptionWhereInput[] | ScheduleSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: ScheduleWhereInput
+}
+
+export interface RoomUpdateManyWithoutFloorInput {
+  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
+  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  disconnect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  delete?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  update?: RoomUpdateWithoutFloorInput[] | RoomUpdateWithoutFloorInput
+  upsert?: RoomUpsertWithoutFloorInput[] | RoomUpsertWithoutFloorInput
+}
+
+export interface ScheduleWhereInput {
+  AND?: ScheduleWhereInput[] | ScheduleWhereInput
+  OR?: ScheduleWhereInput[] | ScheduleWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  roomStatus?: ROOM_STATUS
+  roomStatus_not?: ROOM_STATUS
+  roomStatus_in?: ROOM_STATUS[] | ROOM_STATUS
+  roomStatus_not_in?: ROOM_STATUS[] | ROOM_STATUS
+  booker?: UserWhereInput
+}
+
+export interface FloorUpdateWithoutChurchDataInput {
+  name?: String
+  rooms?: RoomUpdateManyWithoutFloorInput
 }
 
 export interface UserWhereInput {
@@ -1208,20 +1549,70 @@ export interface UserWhereInput {
   posts_none?: PostWhereInput
 }
 
+export interface FloorUpdateWithoutChurchInput {
+  where: FloorWhereUniqueInput
+  data: FloorUpdateWithoutChurchDataInput
+}
+
+export interface RentRequestWhereInput {
+  AND?: RentRequestWhereInput[] | RentRequestWhereInput
+  OR?: RentRequestWhereInput[] | RentRequestWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  status?: REQUEST_STATUS
+  status_not?: REQUEST_STATUS
+  status_in?: REQUEST_STATUS[] | REQUEST_STATUS
+  status_not_in?: REQUEST_STATUS[] | REQUEST_STATUS
+  user?: UserWhereInput
+}
+
+export interface PostCreateInput {
+  isPublished?: Boolean
+  title: String
+  text: String
+  author: UserCreateOneWithoutPostsInput
+}
+
+export interface PostSubscriptionWhereInput {
+  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: PostWhereInput
+}
+
+export interface UserCreateOneWithoutPostsInput {
+  create?: UserCreateWithoutPostsInput
+  connect?: UserWhereUniqueInput
+}
+
+export interface PostWhereUniqueInput {
+  id?: ID_Input
+}
+
 export interface UserCreateWithoutPostsInput {
   email: String
   password: String
   name: String
 }
 
-export interface UserSubscriptionWhereInput {
-  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: UserWhereInput
+export interface ChurchWhereUniqueInput {
+  id?: ID_Input
+  name?: String
 }
 
 export interface UserCreateInput {
@@ -1231,10 +1622,8 @@ export interface UserCreateInput {
   posts?: PostCreateManyWithoutAuthorInput
 }
 
-export interface FloorUpsertWithoutRoomsInput {
-  where: FloorWhereUniqueInput
-  update: FloorUpdateWithoutRoomsDataInput
-  create: FloorCreateWithoutRoomsInput
+export interface RoomWhereUniqueInput {
+  id?: ID_Input
 }
 
 export interface PostCreateManyWithoutAuthorInput {
@@ -1242,7 +1631,7 @@ export interface PostCreateManyWithoutAuthorInput {
   connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
 }
 
-export interface PostWhereUniqueInput {
+export interface RentRequestWhereUniqueInput {
   id?: ID_Input
 }
 
@@ -1252,9 +1641,11 @@ export interface PostCreateWithoutAuthorInput {
   text: String
 }
 
-export interface ChurchWhereUniqueInput {
-  id?: ID_Input
+export interface UserUpdateDataInput {
+  email?: String
+  password?: String
   name?: String
+  posts?: PostUpdateManyWithoutAuthorInput
 }
 
 export interface ChurchCreateInput {
@@ -1262,8 +1653,13 @@ export interface ChurchCreateInput {
   floors?: FloorCreateManyWithoutChurchInput
 }
 
-export interface RoomWhereUniqueInput {
-  id?: ID_Input
+export interface UserUpdateOneInput {
+  create?: UserCreateInput
+  connect?: UserWhereUniqueInput
+  disconnect?: UserWhereUniqueInput
+  delete?: UserWhereUniqueInput
+  update?: UserUpdateNestedInput
+  upsert?: UserUpsertNestedInput
 }
 
 export interface FloorCreateManyWithoutChurchInput {
@@ -1271,13 +1667,10 @@ export interface FloorCreateManyWithoutChurchInput {
   connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
 }
 
-export interface FloorUpdateOneWithoutRoomsInput {
-  create?: FloorCreateWithoutRoomsInput
-  connect?: FloorWhereUniqueInput
-  disconnect?: FloorWhereUniqueInput
-  delete?: FloorWhereUniqueInput
-  update?: FloorUpdateWithoutRoomsInput
-  upsert?: FloorUpsertWithoutRoomsInput
+export interface FloorUpsertWithoutRoomsInput {
+  where: FloorWhereUniqueInput
+  update: FloorUpdateWithoutRoomsDataInput
+  create: FloorCreateWithoutRoomsInput
 }
 
 export interface FloorCreateWithoutChurchInput {
@@ -1285,10 +1678,9 @@ export interface FloorCreateWithoutChurchInput {
   rooms?: RoomCreateManyWithoutFloorInput
 }
 
-export interface ChurchUpsertWithoutFloorsInput {
-  where: ChurchWhereUniqueInput
-  update: ChurchUpdateWithoutFloorsDataInput
-  create: ChurchCreateWithoutFloorsInput
+export interface FloorUpdateWithoutRoomsInput {
+  where: FloorWhereUniqueInput
+  data: FloorUpdateWithoutRoomsDataInput
 }
 
 export interface RoomCreateManyWithoutFloorInput {
@@ -1296,30 +1688,37 @@ export interface RoomCreateManyWithoutFloorInput {
   connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
 }
 
-export interface ChurchUpdateWithoutFloorsInput {
-  where: ChurchWhereUniqueInput
-  data: ChurchUpdateWithoutFloorsDataInput
+export interface RoomUpdateInput {
+  name?: String
+  floor?: FloorUpdateOneWithoutRoomsInput
 }
 
-export interface RoomCreateWithoutFloorInput {
+export interface FloorUpdateManyWithoutChurchInput {
+  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
+  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  disconnect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  delete?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  update?: FloorUpdateWithoutChurchInput[] | FloorUpdateWithoutChurchInput
+  upsert?: FloorUpsertWithoutChurchInput[] | FloorUpsertWithoutChurchInput
+}
+
+export interface ChurchUpdateWithoutFloorsDataInput {
   name?: String
 }
 
-export interface FloorUpdateInput {
+export interface FloorCreateInput {
   name?: String
-  church?: ChurchUpdateOneWithoutFloorsInput
-  rooms?: RoomUpdateManyWithoutFloorInput
+  church: ChurchCreateOneWithoutFloorsInput
+  rooms?: RoomCreateManyWithoutFloorInput
 }
 
-export interface ChurchUpdateInput {
-  name?: String
-  floors?: FloorUpdateManyWithoutChurchInput
-}
-
-export interface RoomUpsertWithoutFloorInput {
-  where: RoomWhereUniqueInput
-  update: RoomUpdateWithoutFloorDataInput
-  create: RoomCreateWithoutFloorInput
+export interface ChurchUpdateOneWithoutFloorsInput {
+  create?: ChurchCreateWithoutFloorsInput
+  connect?: ChurchWhereUniqueInput
+  disconnect?: ChurchWhereUniqueInput
+  delete?: ChurchWhereUniqueInput
+  update?: ChurchUpdateWithoutFloorsInput
+  upsert?: ChurchUpsertWithoutFloorsInput
 }
 
 export interface ChurchCreateOneWithoutFloorsInput {
@@ -1327,9 +1726,10 @@ export interface ChurchCreateOneWithoutFloorsInput {
   connect?: ChurchWhereUniqueInput
 }
 
-export interface RoomUpdateWithoutFloorInput {
-  where: RoomWhereUniqueInput
-  data: RoomUpdateWithoutFloorDataInput
+export interface FloorUpsertWithoutChurchInput {
+  where: FloorWhereUniqueInput
+  update: FloorUpdateWithoutChurchDataInput
+  create: FloorCreateWithoutChurchInput
 }
 
 export interface ChurchCreateWithoutFloorsInput {
@@ -1351,9 +1751,29 @@ export interface RoomCreateInput {
   floor: FloorCreateOneWithoutRoomsInput
 }
 
-export interface RoomWhereInput {
-  AND?: RoomWhereInput[] | RoomWhereInput
-  OR?: RoomWhereInput[] | RoomWhereInput
+export interface ChurchSubscriptionWhereInput {
+  AND?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
+  OR?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: ChurchWhereInput
+}
+
+export interface FloorCreateOneWithoutRoomsInput {
+  create?: FloorCreateWithoutRoomsInput
+  connect?: FloorWhereUniqueInput
+}
+
+export interface RentRequestUpdateInput {
+  status?: REQUEST_STATUS
+  user?: UserUpdateOneInput
+}
+
+export interface FloorWhereInput {
+  AND?: FloorWhereInput[] | FloorWhereInput
+  OR?: FloorWhereInput[] | FloorWhereInput
   id?: ID_Input
   id_not?: ID_Input
   id_in?: ID_Input[] | ID_Input
@@ -1382,32 +1802,49 @@ export interface RoomWhereInput {
   name_not_starts_with?: String
   name_ends_with?: String
   name_not_ends_with?: String
-  floor?: FloorWhereInput
+  church?: ChurchWhereInput
+  rooms_every?: RoomWhereInput
+  rooms_some?: RoomWhereInput
+  rooms_none?: RoomWhereInput
 }
 
-export interface PostSubscriptionWhereInput {
-  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
-  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: PostWhereInput
-}
-
-export interface UserWhereUniqueInput {
+export interface FloorWhereUniqueInput {
   id?: ID_Input
-  email?: String
 }
 
-export interface FloorCreateWithoutRoomsInput {
+export interface ChurchUpdateInput {
   name?: String
-  church: ChurchCreateOneWithoutFloorsInput
+  floors?: FloorUpdateManyWithoutChurchInput
 }
 
-export interface FloorUpdateWithoutRoomsInput {
-  where: FloorWhereUniqueInput
-  data: FloorUpdateWithoutRoomsDataInput
+export interface UserUpsertNestedInput {
+  where: UserWhereUniqueInput
+  update: UserUpdateDataInput
+  create: UserCreateInput
+}
+
+export interface ScheduleUpdateInput {
+  roomStatus?: ROOM_STATUS
+  booker?: UserUpdateOneInput
+}
+
+export interface FloorUpdateOneWithoutRoomsInput {
+  create?: FloorCreateWithoutRoomsInput
+  connect?: FloorWhereUniqueInput
+  disconnect?: FloorWhereUniqueInput
+  delete?: FloorWhereUniqueInput
+  update?: FloorUpdateWithoutRoomsInput
+  upsert?: FloorUpsertWithoutRoomsInput
+}
+
+export interface RentRequestCreateInput {
+  status?: REQUEST_STATUS
+  user: UserCreateOneInput
+}
+
+export interface ChurchUpdateWithoutFloorsInput {
+  where: ChurchWhereUniqueInput
+  data: ChurchUpdateWithoutFloorsDataInput
 }
 
 export interface PostUpdateInput {
@@ -1417,8 +1854,14 @@ export interface PostUpdateInput {
   author?: UserUpdateOneWithoutPostsInput
 }
 
-export interface ChurchUpdateWithoutFloorsDataInput {
-  name?: String
+export interface RentRequestSubscriptionWhereInput {
+  AND?: RentRequestSubscriptionWhereInput[] | RentRequestSubscriptionWhereInput
+  OR?: RentRequestSubscriptionWhereInput[] | RentRequestSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: RentRequestWhereInput
 }
 
 export interface UserUpdateOneWithoutPostsInput {
@@ -1430,10 +1873,14 @@ export interface UserUpdateOneWithoutPostsInput {
   upsert?: UserUpsertWithoutPostsInput
 }
 
-export interface FloorUpsertWithoutChurchInput {
-  where: FloorWhereUniqueInput
-  update: FloorUpdateWithoutChurchDataInput
-  create: FloorCreateWithoutChurchInput
+export interface UserSubscriptionWhereInput {
+  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: UserWhereInput
 }
 
 export interface UserUpdateWithoutPostsInput {
@@ -1441,13 +1888,8 @@ export interface UserUpdateWithoutPostsInput {
   data: UserUpdateWithoutPostsDataInput
 }
 
-export interface RoomUpdateManyWithoutFloorInput {
-  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
-  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  disconnect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  delete?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  update?: RoomUpdateWithoutFloorInput[] | RoomUpdateWithoutFloorInput
-  upsert?: RoomUpsertWithoutFloorInput[] | RoomUpsertWithoutFloorInput
+export interface ScheduleWhereUniqueInput {
+  id?: ID_Input
 }
 
 export interface UserUpdateWithoutPostsDataInput {
@@ -1456,14 +1898,9 @@ export interface UserUpdateWithoutPostsDataInput {
   name?: String
 }
 
-export interface ChurchSubscriptionWhereInput {
-  AND?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
-  OR?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: ChurchWhereInput
+export interface FloorUpdateWithoutRoomsDataInput {
+  name?: String
+  church?: ChurchUpdateOneWithoutFloorsInput
 }
 
 export interface UserUpsertWithoutPostsInput {
@@ -1472,8 +1909,10 @@ export interface UserUpsertWithoutPostsInput {
   create: UserCreateWithoutPostsInput
 }
 
-export interface FloorWhereUniqueInput {
-  id?: ID_Input
+export interface FloorUpdateInput {
+  name?: String
+  church?: ChurchUpdateOneWithoutFloorsInput
+  rooms?: RoomUpdateManyWithoutFloorInput
 }
 
 export interface PostUpdateWithoutAuthorDataInput {
@@ -1503,91 +1942,78 @@ export interface UserUpdateInput {
   posts?: PostUpdateManyWithoutAuthorInput
 }
 
-export interface RoomUpdateInput {
-  name?: String
-  floor?: FloorUpdateOneWithoutRoomsInput
+export interface FloorSubscriptionWhereInput {
+  AND?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
+  OR?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: FloorWhereInput
 }
 
-export interface FloorUpdateWithoutRoomsDataInput {
-  name?: String
-  church?: ChurchUpdateOneWithoutFloorsInput
+export interface ChurchUpsertWithoutFloorsInput {
+  where: ChurchWhereUniqueInput
+  update: ChurchUpdateWithoutFloorsDataInput
+  create: ChurchCreateWithoutFloorsInput
 }
 
-export interface ChurchWhereInput {
-  AND?: ChurchWhereInput[] | ChurchWhereInput
-  OR?: ChurchWhereInput[] | ChurchWhereInput
+export interface UserUpdateNestedInput {
+  where: UserWhereUniqueInput
+  data: UserUpdateDataInput
+}
+
+export interface UserWhereUniqueInput {
   id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  floors_every?: FloorWhereInput
-  floors_some?: FloorWhereInput
-  floors_none?: FloorWhereInput
-}
-
-export interface RoomUpdateWithoutFloorDataInput {
-  name?: String
-}
-
-export interface ChurchUpdateOneWithoutFloorsInput {
-  create?: ChurchCreateWithoutFloorsInput
-  connect?: ChurchWhereUniqueInput
-  disconnect?: ChurchWhereUniqueInput
-  delete?: ChurchWhereUniqueInput
-  update?: ChurchUpdateWithoutFloorsInput
-  upsert?: ChurchUpsertWithoutFloorsInput
+  email?: String
 }
 
 export interface Node {
   id: ID_Output
 }
 
-export interface RoomPreviousValues {
+export interface RentRequestPreviousValues {
   id: ID_Output
-  name?: String
+  status?: REQUEST_STATUS
 }
 
-export interface PostConnection {
+export interface RentRequest extends Node {
+  id: ID_Output
+  user: User
+  status?: REQUEST_STATUS
+}
+
+export interface Church extends Node {
+  id: ID_Output
+  name?: String
+  floors?: Floor[]
+}
+
+export interface BatchPayload {
+  count: Long
+}
+
+export interface User extends Node {
+  id: ID_Output
+  email: String
+  password: String
+  name: String
+  posts?: Post[]
+}
+
+export interface AggregateRentRequest {
+  count: Int
+}
+
+export interface RentRequestConnection {
   pageInfo: PageInfo
-  edges: PostEdge[]
-  aggregate: AggregatePost
+  edges: RentRequestEdge[]
+  aggregate: AggregateRentRequest
 }
 
-export interface FloorSubscriptionPayload {
-  mutation: MutationType
-  node?: Floor
-  updatedFields?: String[]
-  previousValues?: FloorPreviousValues
-}
-
-export interface Room extends Node {
-  floor: Floor
-  id: ID_Output
-  name?: String
+export interface RentRequestEdge {
+  node: RentRequest
+  cursor: String
 }
 
 export interface Post extends Node {
@@ -1600,60 +2026,35 @@ export interface Post extends Node {
   author: User
 }
 
-export interface AggregateRoom {
+export interface AggregateSchedule {
   count: Int
 }
 
-export interface RoomConnection {
-  pageInfo: PageInfo
-  edges: RoomEdge[]
-  aggregate: AggregateRoom
-}
-
-export interface BatchPayload {
-  count: Long
-}
-
-export interface FloorEdge {
-  node: Floor
+export interface ScheduleEdge {
+  node: Schedule
   cursor: String
 }
 
-export interface RoomSubscriptionPayload {
-  mutation: MutationType
-  node?: Room
-  updatedFields?: String[]
-  previousValues?: RoomPreviousValues
+export interface ScheduleConnection {
+  pageInfo: PageInfo
+  edges: ScheduleEdge[]
+  aggregate: AggregateSchedule
 }
 
-export interface AggregateChurch {
-  count: Int
+export interface RoomEdge {
+  node: Room
+  cursor: String
 }
 
 export interface Floor extends Node {
-  church: Church
   id: ID_Output
   name?: String
+  church: Church
   rooms?: Room[]
 }
 
-export interface ChurchConnection {
-  pageInfo: PageInfo
-  edges: ChurchEdge[]
-  aggregate: AggregateChurch
-}
-
-export interface User extends Node {
-  id: ID_Output
-  email: String
-  password: String
-  name: String
-  posts?: Post[]
-}
-
-export interface UserEdge {
-  node: User
-  cursor: String
+export interface AggregateFloor {
+  count: Int
 }
 
 export interface PostSubscriptionPayload {
@@ -1663,8 +2064,10 @@ export interface PostSubscriptionPayload {
   previousValues?: PostPreviousValues
 }
 
-export interface AggregatePost {
-  count: Int
+export interface FloorConnection {
+  pageInfo: PageInfo
+  edges: FloorEdge[]
+  aggregate: AggregateFloor
 }
 
 export interface PostPreviousValues {
@@ -1676,19 +2079,17 @@ export interface PostPreviousValues {
   text: String
 }
 
-export interface PageInfo {
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
-  startCursor?: String
-  endCursor?: String
+export interface ChurchEdge {
+  node: Church
+  cursor: String
 }
 
-export interface FloorPreviousValues {
+export interface SchedulePreviousValues {
   id: ID_Output
-  name?: String
+  roomStatus?: ROOM_STATUS
 }
 
-export interface AggregateFloor {
+export interface AggregateUser {
   count: Int
 }
 
@@ -1699,33 +2100,10 @@ export interface UserSubscriptionPayload {
   previousValues?: UserPreviousValues
 }
 
-export interface ChurchEdge {
-  node: Church
-  cursor: String
-}
-
 export interface UserConnection {
   pageInfo: PageInfo
   edges: UserEdge[]
   aggregate: AggregateUser
-}
-
-export interface ChurchPreviousValues {
-  id: ID_Output
-  name?: String
-}
-
-export interface ChurchSubscriptionPayload {
-  mutation: MutationType
-  node?: Church
-  updatedFields?: String[]
-  previousValues?: ChurchPreviousValues
-}
-
-export interface Church extends Node {
-  floors?: Floor[]
-  id: ID_Output
-  name?: String
 }
 
 export interface UserPreviousValues {
@@ -1740,19 +2118,113 @@ export interface PostEdge {
   cursor: String
 }
 
-export interface AggregateUser {
+export interface Schedule extends Node {
+  id: ID_Output
+  booker: User
+  roomStatus?: ROOM_STATUS
+}
+
+export interface PostConnection {
+  pageInfo: PageInfo
+  edges: PostEdge[]
+  aggregate: AggregatePost
+}
+
+export interface ChurchSubscriptionPayload {
+  mutation: MutationType
+  node?: Church
+  updatedFields?: String[]
+  previousValues?: ChurchPreviousValues
+}
+
+export interface AggregateRoom {
   count: Int
 }
 
-export interface FloorConnection {
-  pageInfo: PageInfo
-  edges: FloorEdge[]
-  aggregate: AggregateFloor
+export interface ChurchPreviousValues {
+  id: ID_Output
+  name?: String
 }
 
-export interface RoomEdge {
-  node: Room
+export interface FloorEdge {
+  node: Floor
   cursor: String
+}
+
+export interface ScheduleSubscriptionPayload {
+  mutation: MutationType
+  node?: Schedule
+  updatedFields?: String[]
+  previousValues?: SchedulePreviousValues
+}
+
+export interface ChurchConnection {
+  pageInfo: PageInfo
+  edges: ChurchEdge[]
+  aggregate: AggregateChurch
+}
+
+export interface FloorSubscriptionPayload {
+  mutation: MutationType
+  node?: Floor
+  updatedFields?: String[]
+  previousValues?: FloorPreviousValues
+}
+
+export interface AggregatePost {
+  count: Int
+}
+
+export interface RentRequestSubscriptionPayload {
+  mutation: MutationType
+  node?: RentRequest
+  updatedFields?: String[]
+  previousValues?: RentRequestPreviousValues
+}
+
+export interface RoomPreviousValues {
+  id: ID_Output
+  name?: String
+}
+
+export interface RoomSubscriptionPayload {
+  mutation: MutationType
+  node?: Room
+  updatedFields?: String[]
+  previousValues?: RoomPreviousValues
+}
+
+export interface Room extends Node {
+  id: ID_Output
+  name?: String
+  floor: Floor
+}
+
+export interface FloorPreviousValues {
+  id: ID_Output
+  name?: String
+}
+
+export interface RoomConnection {
+  pageInfo: PageInfo
+  edges: RoomEdge[]
+  aggregate: AggregateRoom
+}
+
+export interface PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor?: String
+  endCursor?: String
+}
+
+export interface UserEdge {
+  node: User
+  cursor: String
+}
+
+export interface AggregateChurch {
+  count: Int
 }
 
 /*
@@ -1760,13 +2232,13 @@ The `Boolean` scalar type represents `true` or `false`.
 */
 export type Boolean = boolean
 
+export type Long = string
+
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
 */
 export type ID_Input = string | number
 export type ID_Output = string
-
-export type Long = string
 
 export type DateTime = string
 
@@ -1792,16 +2264,22 @@ export type Query = {
   churches: (args: { where?: ChurchWhereInput, orderBy?: ChurchOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Church[]>
   floors: (args: { where?: FloorWhereInput, orderBy?: FloorOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Floor[]>
   rooms: (args: { where?: RoomWhereInput, orderBy?: RoomOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Room[]>
+  schedules: (args: { where?: ScheduleWhereInput, orderBy?: ScheduleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Schedule[]>
+  rentRequests: (args: { where?: RentRequestWhereInput, orderBy?: RentRequestOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RentRequest[]>
   post: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   user: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
   church: (args: { where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   floor: (args: { where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   room: (args: { where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
+  schedule: (args: { where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
+  rentRequest: (args: { where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
   postsConnection: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<PostConnection>
   usersConnection: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<UserConnection>
   churchesConnection: (args: { where?: ChurchWhereInput, orderBy?: ChurchOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ChurchConnection>
   floorsConnection: (args: { where?: FloorWhereInput, orderBy?: FloorOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<FloorConnection>
   roomsConnection: (args: { where?: RoomWhereInput, orderBy?: RoomOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RoomConnection>
+  schedulesConnection: (args: { where?: ScheduleWhereInput, orderBy?: ScheduleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ScheduleConnection>
+  rentRequestsConnection: (args: { where?: RentRequestWhereInput, orderBy?: RentRequestOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RentRequestConnection>
   node: (args: { id: ID_Output }, info?: GraphQLResolveInfo | string) => Promise<Node | null>
 }
 
@@ -1811,31 +2289,43 @@ export type Mutation = {
   createChurch: (args: { data: ChurchCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Church>
   createFloor: (args: { data: FloorCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Floor>
   createRoom: (args: { data: RoomCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Room>
+  createSchedule: (args: { data: ScheduleCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule>
+  createRentRequest: (args: { data: RentRequestCreateInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest>
   updatePost: (args: { data: PostUpdateInput, where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   updateUser: (args: { data: UserUpdateInput, where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
   updateChurch: (args: { data: ChurchUpdateInput, where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   updateFloor: (args: { data: FloorUpdateInput, where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   updateRoom: (args: { data: RoomUpdateInput, where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
+  updateSchedule: (args: { data: ScheduleUpdateInput, where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
+  updateRentRequest: (args: { data: RentRequestUpdateInput, where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
   deletePost: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   deleteUser: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
   deleteChurch: (args: { where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   deleteFloor: (args: { where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   deleteRoom: (args: { where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
+  deleteSchedule: (args: { where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
+  deleteRentRequest: (args: { where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
   upsertPost: (args: { where: PostWhereUniqueInput, create: PostCreateInput, update: PostUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   upsertUser: (args: { where: UserWhereUniqueInput, create: UserCreateInput, update: UserUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
   upsertChurch: (args: { where: ChurchWhereUniqueInput, create: ChurchCreateInput, update: ChurchUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Church>
   upsertFloor: (args: { where: FloorWhereUniqueInput, create: FloorCreateInput, update: FloorUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Floor>
   upsertRoom: (args: { where: RoomWhereUniqueInput, create: RoomCreateInput, update: RoomUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Room>
+  upsertSchedule: (args: { where: ScheduleWhereUniqueInput, create: ScheduleCreateInput, update: ScheduleUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule>
+  upsertRentRequest: (args: { where: RentRequestWhereUniqueInput, create: RentRequestCreateInput, update: RentRequestUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest>
   updateManyPosts: (args: { data: PostUpdateInput, where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyUsers: (args: { data: UserUpdateInput, where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyChurches: (args: { data: ChurchUpdateInput, where: ChurchWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyFloors: (args: { data: FloorUpdateInput, where: FloorWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyRooms: (args: { data: RoomUpdateInput, where: RoomWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManySchedules: (args: { data: ScheduleUpdateInput, where: ScheduleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyRentRequests: (args: { data: RentRequestUpdateInput, where: RentRequestWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyPosts: (args: { where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyUsers: (args: { where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyChurches: (args: { where: ChurchWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyFloors: (args: { where: FloorWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyRooms: (args: { where: RoomWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManySchedules: (args: { where: ScheduleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyRentRequests: (args: { where: RentRequestWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
 }
 
 export type Subscription = {
@@ -1844,6 +2334,8 @@ export type Subscription = {
   church: (args: { where?: ChurchSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ChurchSubscriptionPayload>>
   floor: (args: { where?: FloorSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<FloorSubscriptionPayload>>
   room: (args: { where?: RoomSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<RoomSubscriptionPayload>>
+  schedule: (args: { where?: ScheduleSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ScheduleSubscriptionPayload>>
+  rentRequest: (args: { where?: RentRequestSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<RentRequestSubscriptionPayload>>
 }
 
 export class Prisma extends BasePrisma {
@@ -1857,7 +2349,9 @@ export class Prisma extends BasePrisma {
     User: (where: UserWhereInput): Promise<boolean> => super.existsDelegate('query', 'users', { where }, {}, '{ id }'),
     Church: (where: ChurchWhereInput): Promise<boolean> => super.existsDelegate('query', 'churches', { where }, {}, '{ id }'),
     Floor: (where: FloorWhereInput): Promise<boolean> => super.existsDelegate('query', 'floors', { where }, {}, '{ id }'),
-    Room: (where: RoomWhereInput): Promise<boolean> => super.existsDelegate('query', 'rooms', { where }, {}, '{ id }')
+    Room: (where: RoomWhereInput): Promise<boolean> => super.existsDelegate('query', 'rooms', { where }, {}, '{ id }'),
+    Schedule: (where: ScheduleWhereInput): Promise<boolean> => super.existsDelegate('query', 'schedules', { where }, {}, '{ id }'),
+    RentRequest: (where: RentRequestWhereInput): Promise<boolean> => super.existsDelegate('query', 'rentRequests', { where }, {}, '{ id }')
   }
 
   query: Query = {
@@ -1866,16 +2360,22 @@ export class Prisma extends BasePrisma {
     churches: (args, info): Promise<Church[]> => super.delegate('query', 'churches', args, {}, info),
     floors: (args, info): Promise<Floor[]> => super.delegate('query', 'floors', args, {}, info),
     rooms: (args, info): Promise<Room[]> => super.delegate('query', 'rooms', args, {}, info),
+    schedules: (args, info): Promise<Schedule[]> => super.delegate('query', 'schedules', args, {}, info),
+    rentRequests: (args, info): Promise<RentRequest[]> => super.delegate('query', 'rentRequests', args, {}, info),
     post: (args, info): Promise<Post | null> => super.delegate('query', 'post', args, {}, info),
     user: (args, info): Promise<User | null> => super.delegate('query', 'user', args, {}, info),
     church: (args, info): Promise<Church | null> => super.delegate('query', 'church', args, {}, info),
     floor: (args, info): Promise<Floor | null> => super.delegate('query', 'floor', args, {}, info),
     room: (args, info): Promise<Room | null> => super.delegate('query', 'room', args, {}, info),
+    schedule: (args, info): Promise<Schedule | null> => super.delegate('query', 'schedule', args, {}, info),
+    rentRequest: (args, info): Promise<RentRequest | null> => super.delegate('query', 'rentRequest', args, {}, info),
     postsConnection: (args, info): Promise<PostConnection> => super.delegate('query', 'postsConnection', args, {}, info),
     usersConnection: (args, info): Promise<UserConnection> => super.delegate('query', 'usersConnection', args, {}, info),
     churchesConnection: (args, info): Promise<ChurchConnection> => super.delegate('query', 'churchesConnection', args, {}, info),
     floorsConnection: (args, info): Promise<FloorConnection> => super.delegate('query', 'floorsConnection', args, {}, info),
     roomsConnection: (args, info): Promise<RoomConnection> => super.delegate('query', 'roomsConnection', args, {}, info),
+    schedulesConnection: (args, info): Promise<ScheduleConnection> => super.delegate('query', 'schedulesConnection', args, {}, info),
+    rentRequestsConnection: (args, info): Promise<RentRequestConnection> => super.delegate('query', 'rentRequestsConnection', args, {}, info),
     node: (args, info): Promise<Node | null> => super.delegate('query', 'node', args, {}, info)
   }
 
@@ -1885,31 +2385,43 @@ export class Prisma extends BasePrisma {
     createChurch: (args, info): Promise<Church> => super.delegate('mutation', 'createChurch', args, {}, info),
     createFloor: (args, info): Promise<Floor> => super.delegate('mutation', 'createFloor', args, {}, info),
     createRoom: (args, info): Promise<Room> => super.delegate('mutation', 'createRoom', args, {}, info),
+    createSchedule: (args, info): Promise<Schedule> => super.delegate('mutation', 'createSchedule', args, {}, info),
+    createRentRequest: (args, info): Promise<RentRequest> => super.delegate('mutation', 'createRentRequest', args, {}, info),
     updatePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'updatePost', args, {}, info),
     updateUser: (args, info): Promise<User | null> => super.delegate('mutation', 'updateUser', args, {}, info),
     updateChurch: (args, info): Promise<Church | null> => super.delegate('mutation', 'updateChurch', args, {}, info),
     updateFloor: (args, info): Promise<Floor | null> => super.delegate('mutation', 'updateFloor', args, {}, info),
     updateRoom: (args, info): Promise<Room | null> => super.delegate('mutation', 'updateRoom', args, {}, info),
+    updateSchedule: (args, info): Promise<Schedule | null> => super.delegate('mutation', 'updateSchedule', args, {}, info),
+    updateRentRequest: (args, info): Promise<RentRequest | null> => super.delegate('mutation', 'updateRentRequest', args, {}, info),
     deletePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'deletePost', args, {}, info),
     deleteUser: (args, info): Promise<User | null> => super.delegate('mutation', 'deleteUser', args, {}, info),
     deleteChurch: (args, info): Promise<Church | null> => super.delegate('mutation', 'deleteChurch', args, {}, info),
     deleteFloor: (args, info): Promise<Floor | null> => super.delegate('mutation', 'deleteFloor', args, {}, info),
     deleteRoom: (args, info): Promise<Room | null> => super.delegate('mutation', 'deleteRoom', args, {}, info),
+    deleteSchedule: (args, info): Promise<Schedule | null> => super.delegate('mutation', 'deleteSchedule', args, {}, info),
+    deleteRentRequest: (args, info): Promise<RentRequest | null> => super.delegate('mutation', 'deleteRentRequest', args, {}, info),
     upsertPost: (args, info): Promise<Post> => super.delegate('mutation', 'upsertPost', args, {}, info),
     upsertUser: (args, info): Promise<User> => super.delegate('mutation', 'upsertUser', args, {}, info),
     upsertChurch: (args, info): Promise<Church> => super.delegate('mutation', 'upsertChurch', args, {}, info),
     upsertFloor: (args, info): Promise<Floor> => super.delegate('mutation', 'upsertFloor', args, {}, info),
     upsertRoom: (args, info): Promise<Room> => super.delegate('mutation', 'upsertRoom', args, {}, info),
+    upsertSchedule: (args, info): Promise<Schedule> => super.delegate('mutation', 'upsertSchedule', args, {}, info),
+    upsertRentRequest: (args, info): Promise<RentRequest> => super.delegate('mutation', 'upsertRentRequest', args, {}, info),
     updateManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyPosts', args, {}, info),
     updateManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyUsers', args, {}, info),
     updateManyChurches: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyChurches', args, {}, info),
     updateManyFloors: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyFloors', args, {}, info),
     updateManyRooms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyRooms', args, {}, info),
+    updateManySchedules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManySchedules', args, {}, info),
+    updateManyRentRequests: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyRentRequests', args, {}, info),
     deleteManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyPosts', args, {}, info),
     deleteManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyUsers', args, {}, info),
     deleteManyChurches: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyChurches', args, {}, info),
     deleteManyFloors: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyFloors', args, {}, info),
-    deleteManyRooms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyRooms', args, {}, info)
+    deleteManyRooms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyRooms', args, {}, info),
+    deleteManySchedules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManySchedules', args, {}, info),
+    deleteManyRentRequests: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyRentRequests', args, {}, info)
   }
 
   subscription: Subscription = {
@@ -1917,6 +2429,8 @@ export class Prisma extends BasePrisma {
     user: (args, infoOrQuery): Promise<AsyncIterator<UserSubscriptionPayload>> => super.delegateSubscription('user', args, {}, infoOrQuery),
     church: (args, infoOrQuery): Promise<AsyncIterator<ChurchSubscriptionPayload>> => super.delegateSubscription('church', args, {}, infoOrQuery),
     floor: (args, infoOrQuery): Promise<AsyncIterator<FloorSubscriptionPayload>> => super.delegateSubscription('floor', args, {}, infoOrQuery),
-    room: (args, infoOrQuery): Promise<AsyncIterator<RoomSubscriptionPayload>> => super.delegateSubscription('room', args, {}, infoOrQuery)
+    room: (args, infoOrQuery): Promise<AsyncIterator<RoomSubscriptionPayload>> => super.delegateSubscription('room', args, {}, infoOrQuery),
+    schedule: (args, infoOrQuery): Promise<AsyncIterator<ScheduleSubscriptionPayload>> => super.delegateSubscription('schedule', args, {}, infoOrQuery),
+    rentRequest: (args, infoOrQuery): Promise<AsyncIterator<RentRequestSubscriptionPayload>> => super.delegateSubscription('rentRequest', args, {}, infoOrQuery)
   }
 }

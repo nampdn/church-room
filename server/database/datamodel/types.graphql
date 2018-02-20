@@ -17,20 +17,32 @@ type User {
 }
 
 type Church {
-  floors: [Floor!]! @relation(name: "ChurchFloors")
   id: ID! @unique
   name: String @unique
+  floors: [Floor!]! @relation(name: "ChurchFloors")
 }
 
 type Floor {
-  church: Church! @relation(name: "ChurchFloors")
   id: ID! @unique
   name: String
+  church: Church! @relation(name: "ChurchFloors")
   rooms: [Room!]! @relation(name: "FloorRoom")
 }
 
 type Room {
-  floor: Floor! @relation(name: "FloorRoom")
   id: ID! @unique
   name: String
+  floor: Floor! @relation(name: "FloorRoom")
+}
+
+type Schedule {
+  id: ID! @unique
+  booker: User!
+  roomStatus: ROOM_STATUS
+}
+
+type RentRequest {
+  id: ID! @unique
+  user: User!
+  status: REQUEST_STATUS
 }
