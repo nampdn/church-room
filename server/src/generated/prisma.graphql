@@ -5,6 +5,16 @@
 # Model Types
 #
 
+type Booking implements Node {
+  id: ID!
+  status: REQUEST_STATUS
+  createdAt: DateTime!
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee(where: UserWhereInput): User!
+  room(where: RoomWhereInput): Room!
+}
+
 type Church implements Node {
   id: ID!
   name: String
@@ -28,22 +38,11 @@ type Post implements Node {
   author(where: UserWhereInput): User!
 }
 
-type RentRequest implements Node {
-  id: ID!
-  user(where: UserWhereInput): User!
-  status: REQUEST_STATUS
-}
-
 type Room implements Node {
   id: ID!
   name: String
   floor(where: FloorWhereInput): Floor!
-}
-
-type Schedule implements Node {
-  id: ID!
-  booker(where: UserWhereInput): User!
-  roomStatus: ROOM_STATUS
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
 }
 
 type User implements Node {
@@ -52,12 +51,17 @@ type User implements Node {
   password: String!
   name: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
 }
 
 
 #
 # Other Types
 #
+
+type AggregateBooking {
+  count: Int!
+}
 
 type AggregateChurch {
   count: Int!
@@ -71,15 +75,7 @@ type AggregatePost {
   count: Int!
 }
 
-type AggregateRentRequest {
-  count: Int!
-}
-
 type AggregateRoom {
-  count: Int!
-}
-
-type AggregateSchedule {
   count: Int!
 }
 
@@ -89,6 +85,204 @@ type AggregateUser {
 
 type BatchPayload {
   count: Long!
+}
+
+type BookingConnection {
+  pageInfo: PageInfo!
+  edges: [BookingEdge]!
+  aggregate: AggregateBooking!
+}
+
+input BookingCreateInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee: UserCreateOneWithoutBookingsInput!
+  room: RoomCreateOneWithoutBookingsInput!
+}
+
+input BookingCreateManyWithoutBookeeInput {
+  create: [BookingCreateWithoutBookeeInput!]
+  connect: [BookingWhereUniqueInput!]
+}
+
+input BookingCreateManyWithoutRoomInput {
+  create: [BookingCreateWithoutRoomInput!]
+  connect: [BookingWhereUniqueInput!]
+}
+
+input BookingCreateWithoutBookeeInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  room: RoomCreateOneWithoutBookingsInput!
+}
+
+input BookingCreateWithoutRoomInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee: UserCreateOneWithoutBookingsInput!
+}
+
+type BookingEdge {
+  node: Booking!
+  cursor: String!
+}
+
+enum BookingOrderByInput {
+  id_ASC
+  id_DESC
+  status_ASC
+  status_DESC
+  createdAt_ASC
+  createdAt_DESC
+  startDate_ASC
+  startDate_DESC
+  endDate_ASC
+  endDate_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type BookingPreviousValues {
+  id: ID!
+  status: REQUEST_STATUS
+  createdAt: DateTime!
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
+type BookingSubscriptionPayload {
+  mutation: MutationType!
+  node: Booking
+  updatedFields: [String!]
+  previousValues: BookingPreviousValues
+}
+
+input BookingSubscriptionWhereInput {
+  AND: [BookingSubscriptionWhereInput!]
+  OR: [BookingSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: BookingWhereInput
+}
+
+input BookingUpdateInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserUpdateOneWithoutBookingsInput
+  room: RoomUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateManyWithoutBookeeInput {
+  create: [BookingCreateWithoutBookeeInput!]
+  connect: [BookingWhereUniqueInput!]
+  disconnect: [BookingWhereUniqueInput!]
+  delete: [BookingWhereUniqueInput!]
+  update: [BookingUpdateWithoutBookeeInput!]
+  upsert: [BookingUpsertWithoutBookeeInput!]
+}
+
+input BookingUpdateManyWithoutRoomInput {
+  create: [BookingCreateWithoutRoomInput!]
+  connect: [BookingWhereUniqueInput!]
+  disconnect: [BookingWhereUniqueInput!]
+  delete: [BookingWhereUniqueInput!]
+  update: [BookingUpdateWithoutRoomInput!]
+  upsert: [BookingUpsertWithoutRoomInput!]
+}
+
+input BookingUpdateWithoutBookeeDataInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  room: RoomUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateWithoutBookeeInput {
+  where: BookingWhereUniqueInput!
+  data: BookingUpdateWithoutBookeeDataInput!
+}
+
+input BookingUpdateWithoutRoomDataInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateWithoutRoomInput {
+  where: BookingWhereUniqueInput!
+  data: BookingUpdateWithoutRoomDataInput!
+}
+
+input BookingUpsertWithoutBookeeInput {
+  where: BookingWhereUniqueInput!
+  update: BookingUpdateWithoutBookeeDataInput!
+  create: BookingCreateWithoutBookeeInput!
+}
+
+input BookingUpsertWithoutRoomInput {
+  where: BookingWhereUniqueInput!
+  update: BookingUpdateWithoutRoomDataInput!
+  create: BookingCreateWithoutRoomInput!
+}
+
+input BookingWhereInput {
+  AND: [BookingWhereInput!]
+  OR: [BookingWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  status: REQUEST_STATUS
+  status_not: REQUEST_STATUS
+  status_in: [REQUEST_STATUS!]
+  status_not_in: [REQUEST_STATUS!]
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  startDate: DateTime
+  startDate_not: DateTime
+  startDate_in: [DateTime!]
+  startDate_not_in: [DateTime!]
+  startDate_lt: DateTime
+  startDate_lte: DateTime
+  startDate_gt: DateTime
+  startDate_gte: DateTime
+  endDate: DateTime
+  endDate_not: DateTime
+  endDate_in: [DateTime!]
+  endDate_not_in: [DateTime!]
+  endDate_lt: DateTime
+  endDate_lte: DateTime
+  endDate_gt: DateTime
+  endDate_gte: DateTime
+  bookee: UserWhereInput
+  room: RoomWhereInput
+}
+
+input BookingWhereUniqueInput {
+  id: ID
 }
 
 type ChurchConnection {
@@ -391,48 +585,42 @@ input FloorWhereUniqueInput {
 scalar Long
 
 type Mutation {
-  createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
+  createPost(data: PostCreateInput!): Post!
   createChurch(data: ChurchCreateInput!): Church!
   createFloor(data: FloorCreateInput!): Floor!
   createRoom(data: RoomCreateInput!): Room!
-  createSchedule(data: ScheduleCreateInput!): Schedule!
-  createRentRequest(data: RentRequestCreateInput!): RentRequest!
-  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
+  createBooking(data: BookingCreateInput!): Booking!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateChurch(data: ChurchUpdateInput!, where: ChurchWhereUniqueInput!): Church
   updateFloor(data: FloorUpdateInput!, where: FloorWhereUniqueInput!): Floor
   updateRoom(data: RoomUpdateInput!, where: RoomWhereUniqueInput!): Room
-  updateSchedule(data: ScheduleUpdateInput!, where: ScheduleWhereUniqueInput!): Schedule
-  updateRentRequest(data: RentRequestUpdateInput!, where: RentRequestWhereUniqueInput!): RentRequest
-  deletePost(where: PostWhereUniqueInput!): Post
+  updateBooking(data: BookingUpdateInput!, where: BookingWhereUniqueInput!): Booking
   deleteUser(where: UserWhereUniqueInput!): User
+  deletePost(where: PostWhereUniqueInput!): Post
   deleteChurch(where: ChurchWhereUniqueInput!): Church
   deleteFloor(where: FloorWhereUniqueInput!): Floor
   deleteRoom(where: RoomWhereUniqueInput!): Room
-  deleteSchedule(where: ScheduleWhereUniqueInput!): Schedule
-  deleteRentRequest(where: RentRequestWhereUniqueInput!): RentRequest
-  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
+  deleteBooking(where: BookingWhereUniqueInput!): Booking
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertChurch(where: ChurchWhereUniqueInput!, create: ChurchCreateInput!, update: ChurchUpdateInput!): Church!
   upsertFloor(where: FloorWhereUniqueInput!, create: FloorCreateInput!, update: FloorUpdateInput!): Floor!
   upsertRoom(where: RoomWhereUniqueInput!, create: RoomCreateInput!, update: RoomUpdateInput!): Room!
-  upsertSchedule(where: ScheduleWhereUniqueInput!, create: ScheduleCreateInput!, update: ScheduleUpdateInput!): Schedule!
-  upsertRentRequest(where: RentRequestWhereUniqueInput!, create: RentRequestCreateInput!, update: RentRequestUpdateInput!): RentRequest!
-  updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
+  upsertBooking(where: BookingWhereUniqueInput!, create: BookingCreateInput!, update: BookingUpdateInput!): Booking!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyChurches(data: ChurchUpdateInput!, where: ChurchWhereInput!): BatchPayload!
   updateManyFloors(data: FloorUpdateInput!, where: FloorWhereInput!): BatchPayload!
   updateManyRooms(data: RoomUpdateInput!, where: RoomWhereInput!): BatchPayload!
-  updateManySchedules(data: ScheduleUpdateInput!, where: ScheduleWhereInput!): BatchPayload!
-  updateManyRentRequests(data: RentRequestUpdateInput!, where: RentRequestWhereInput!): BatchPayload!
-  deleteManyPosts(where: PostWhereInput!): BatchPayload!
+  updateManyBookings(data: BookingUpdateInput!, where: BookingWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyChurches(where: ChurchWhereInput!): BatchPayload!
   deleteManyFloors(where: FloorWhereInput!): BatchPayload!
   deleteManyRooms(where: RoomWhereInput!): BatchPayload!
-  deleteManySchedules(where: ScheduleWhereInput!): BatchPayload!
-  deleteManyRentRequests(where: RentRequestWhereInput!): BatchPayload!
+  deleteManyBookings(where: BookingWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -626,110 +814,25 @@ input PostWhereUniqueInput {
 }
 
 type Query {
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   churches(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Church]!
   floors(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Floor]!
   rooms(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Room]!
-  schedules(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Schedule]!
-  rentRequests(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RentRequest]!
-  post(where: PostWhereUniqueInput!): Post
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking]!
   user(where: UserWhereUniqueInput!): User
+  post(where: PostWhereUniqueInput!): Post
   church(where: ChurchWhereUniqueInput!): Church
   floor(where: FloorWhereUniqueInput!): Floor
   room(where: RoomWhereUniqueInput!): Room
-  schedule(where: ScheduleWhereUniqueInput!): Schedule
-  rentRequest(where: RentRequestWhereUniqueInput!): RentRequest
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
+  booking(where: BookingWhereUniqueInput!): Booking
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   churchesConnection(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ChurchConnection!
   floorsConnection(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FloorConnection!
   roomsConnection(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RoomConnection!
-  schedulesConnection(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ScheduleConnection!
-  rentRequestsConnection(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RentRequestConnection!
+  bookingsConnection(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): BookingConnection!
   node(id: ID!): Node
-}
-
-type RentRequestConnection {
-  pageInfo: PageInfo!
-  edges: [RentRequestEdge]!
-  aggregate: AggregateRentRequest!
-}
-
-input RentRequestCreateInput {
-  status: REQUEST_STATUS
-  user: UserCreateOneInput!
-}
-
-type RentRequestEdge {
-  node: RentRequest!
-  cursor: String!
-}
-
-enum RentRequestOrderByInput {
-  id_ASC
-  id_DESC
-  status_ASC
-  status_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
-}
-
-type RentRequestPreviousValues {
-  id: ID!
-  status: REQUEST_STATUS
-}
-
-type RentRequestSubscriptionPayload {
-  mutation: MutationType!
-  node: RentRequest
-  updatedFields: [String!]
-  previousValues: RentRequestPreviousValues
-}
-
-input RentRequestSubscriptionWhereInput {
-  AND: [RentRequestSubscriptionWhereInput!]
-  OR: [RentRequestSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: RentRequestWhereInput
-}
-
-input RentRequestUpdateInput {
-  status: REQUEST_STATUS
-  user: UserUpdateOneInput
-}
-
-input RentRequestWhereInput {
-  AND: [RentRequestWhereInput!]
-  OR: [RentRequestWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  status: REQUEST_STATUS
-  status_not: REQUEST_STATUS
-  status_in: [REQUEST_STATUS!]
-  status_not_in: [REQUEST_STATUS!]
-  user: UserWhereInput
-}
-
-input RentRequestWhereUniqueInput {
-  id: ID
 }
 
 enum REQUEST_STATUS {
@@ -737,11 +840,6 @@ enum REQUEST_STATUS {
   PENDING
   REJECTED
   APPROVED
-}
-
-enum ROOM_STATUS {
-  FREE
-  INUSE
 }
 
 type RoomConnection {
@@ -753,6 +851,7 @@ type RoomConnection {
 input RoomCreateInput {
   name: String
   floor: FloorCreateOneWithoutRoomsInput!
+  bookings: BookingCreateManyWithoutRoomInput
 }
 
 input RoomCreateManyWithoutFloorInput {
@@ -760,8 +859,19 @@ input RoomCreateManyWithoutFloorInput {
   connect: [RoomWhereUniqueInput!]
 }
 
+input RoomCreateOneWithoutBookingsInput {
+  create: RoomCreateWithoutBookingsInput
+  connect: RoomWhereUniqueInput
+}
+
+input RoomCreateWithoutBookingsInput {
+  name: String
+  floor: FloorCreateOneWithoutRoomsInput!
+}
+
 input RoomCreateWithoutFloorInput {
   name: String
+  bookings: BookingCreateManyWithoutRoomInput
 }
 
 type RoomEdge {
@@ -805,6 +915,7 @@ input RoomSubscriptionWhereInput {
 input RoomUpdateInput {
   name: String
   floor: FloorUpdateOneWithoutRoomsInput
+  bookings: BookingUpdateManyWithoutRoomInput
 }
 
 input RoomUpdateManyWithoutFloorInput {
@@ -816,13 +927,39 @@ input RoomUpdateManyWithoutFloorInput {
   upsert: [RoomUpsertWithoutFloorInput!]
 }
 
+input RoomUpdateOneWithoutBookingsInput {
+  create: RoomCreateWithoutBookingsInput
+  connect: RoomWhereUniqueInput
+  disconnect: RoomWhereUniqueInput
+  delete: RoomWhereUniqueInput
+  update: RoomUpdateWithoutBookingsInput
+  upsert: RoomUpsertWithoutBookingsInput
+}
+
+input RoomUpdateWithoutBookingsDataInput {
+  name: String
+  floor: FloorUpdateOneWithoutRoomsInput
+}
+
+input RoomUpdateWithoutBookingsInput {
+  where: RoomWhereUniqueInput!
+  data: RoomUpdateWithoutBookingsDataInput!
+}
+
 input RoomUpdateWithoutFloorDataInput {
   name: String
+  bookings: BookingUpdateManyWithoutRoomInput
 }
 
 input RoomUpdateWithoutFloorInput {
   where: RoomWhereUniqueInput!
   data: RoomUpdateWithoutFloorDataInput!
+}
+
+input RoomUpsertWithoutBookingsInput {
+  where: RoomWhereUniqueInput!
+  update: RoomUpdateWithoutBookingsDataInput!
+  create: RoomCreateWithoutBookingsInput!
 }
 
 input RoomUpsertWithoutFloorInput {
@@ -863,102 +1000,22 @@ input RoomWhereInput {
   name_ends_with: String
   name_not_ends_with: String
   floor: FloorWhereInput
+  bookings_every: BookingWhereInput
+  bookings_some: BookingWhereInput
+  bookings_none: BookingWhereInput
 }
 
 input RoomWhereUniqueInput {
   id: ID
 }
 
-type ScheduleConnection {
-  pageInfo: PageInfo!
-  edges: [ScheduleEdge]!
-  aggregate: AggregateSchedule!
-}
-
-input ScheduleCreateInput {
-  roomStatus: ROOM_STATUS
-  booker: UserCreateOneInput!
-}
-
-type ScheduleEdge {
-  node: Schedule!
-  cursor: String!
-}
-
-enum ScheduleOrderByInput {
-  id_ASC
-  id_DESC
-  roomStatus_ASC
-  roomStatus_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
-}
-
-type SchedulePreviousValues {
-  id: ID!
-  roomStatus: ROOM_STATUS
-}
-
-type ScheduleSubscriptionPayload {
-  mutation: MutationType!
-  node: Schedule
-  updatedFields: [String!]
-  previousValues: SchedulePreviousValues
-}
-
-input ScheduleSubscriptionWhereInput {
-  AND: [ScheduleSubscriptionWhereInput!]
-  OR: [ScheduleSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: ScheduleWhereInput
-}
-
-input ScheduleUpdateInput {
-  roomStatus: ROOM_STATUS
-  booker: UserUpdateOneInput
-}
-
-input ScheduleWhereInput {
-  AND: [ScheduleWhereInput!]
-  OR: [ScheduleWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  roomStatus: ROOM_STATUS
-  roomStatus_not: ROOM_STATUS
-  roomStatus_in: [ROOM_STATUS!]
-  roomStatus_not_in: [ROOM_STATUS!]
-  booker: UserWhereInput
-}
-
-input ScheduleWhereUniqueInput {
-  id: ID
-}
-
 type Subscription {
-  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   church(where: ChurchSubscriptionWhereInput): ChurchSubscriptionPayload
   floor(where: FloorSubscriptionWhereInput): FloorSubscriptionPayload
   room(where: RoomSubscriptionWhereInput): RoomSubscriptionPayload
-  schedule(where: ScheduleSubscriptionWhereInput): ScheduleSubscriptionPayload
-  rentRequest(where: RentRequestSubscriptionWhereInput): RentRequestSubscriptionPayload
+  booking(where: BookingSubscriptionWhereInput): BookingSubscriptionPayload
 }
 
 type UserConnection {
@@ -972,10 +1029,11 @@ input UserCreateInput {
   password: String!
   name: String!
   posts: PostCreateManyWithoutAuthorInput
+  bookings: BookingCreateManyWithoutBookeeInput
 }
 
-input UserCreateOneInput {
-  create: UserCreateInput
+input UserCreateOneWithoutBookingsInput {
+  create: UserCreateWithoutBookingsInput
   connect: UserWhereUniqueInput
 }
 
@@ -984,10 +1042,18 @@ input UserCreateOneWithoutPostsInput {
   connect: UserWhereUniqueInput
 }
 
+input UserCreateWithoutBookingsInput {
+  email: String!
+  password: String!
+  name: String!
+  posts: PostCreateManyWithoutAuthorInput
+}
+
 input UserCreateWithoutPostsInput {
   email: String!
   password: String!
   name: String!
+  bookings: BookingCreateManyWithoutBookeeInput
 }
 
 type UserEdge {
@@ -1034,32 +1100,21 @@ input UserSubscriptionWhereInput {
   node: UserWhereInput
 }
 
-input UserUpdateDataInput {
-  email: String
-  password: String
-  name: String
-  posts: PostUpdateManyWithoutAuthorInput
-}
-
 input UserUpdateInput {
   email: String
   password: String
   name: String
   posts: PostUpdateManyWithoutAuthorInput
+  bookings: BookingUpdateManyWithoutBookeeInput
 }
 
-input UserUpdateNestedInput {
-  where: UserWhereUniqueInput!
-  data: UserUpdateDataInput!
-}
-
-input UserUpdateOneInput {
-  create: UserCreateInput
+input UserUpdateOneWithoutBookingsInput {
+  create: UserCreateWithoutBookingsInput
   connect: UserWhereUniqueInput
   disconnect: UserWhereUniqueInput
   delete: UserWhereUniqueInput
-  update: UserUpdateNestedInput
-  upsert: UserUpsertNestedInput
+  update: UserUpdateWithoutBookingsInput
+  upsert: UserUpsertWithoutBookingsInput
 }
 
 input UserUpdateOneWithoutPostsInput {
@@ -1071,10 +1126,23 @@ input UserUpdateOneWithoutPostsInput {
   upsert: UserUpsertWithoutPostsInput
 }
 
+input UserUpdateWithoutBookingsDataInput {
+  email: String
+  password: String
+  name: String
+  posts: PostUpdateManyWithoutAuthorInput
+}
+
+input UserUpdateWithoutBookingsInput {
+  where: UserWhereUniqueInput!
+  data: UserUpdateWithoutBookingsDataInput!
+}
+
 input UserUpdateWithoutPostsDataInput {
   email: String
   password: String
   name: String
+  bookings: BookingUpdateManyWithoutBookeeInput
 }
 
 input UserUpdateWithoutPostsInput {
@@ -1082,10 +1150,10 @@ input UserUpdateWithoutPostsInput {
   data: UserUpdateWithoutPostsDataInput!
 }
 
-input UserUpsertNestedInput {
+input UserUpsertWithoutBookingsInput {
   where: UserWhereUniqueInput!
-  update: UserUpdateDataInput!
-  create: UserCreateInput!
+  update: UserUpdateWithoutBookingsDataInput!
+  create: UserCreateWithoutBookingsInput!
 }
 
 input UserUpsertWithoutPostsInput {
@@ -1156,6 +1224,9 @@ input UserWhereInput {
   posts_every: PostWhereInput
   posts_some: PostWhereInput
   posts_none: PostWhereInput
+  bookings_every: BookingWhereInput
+  bookings_some: BookingWhereInput
+  bookings_none: BookingWhereInput
 }
 
 input UserWhereUniqueInput {

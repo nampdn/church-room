@@ -1,30 +1,95 @@
-mutation {
-	createChurch(data: {name: "HTTL Gia Định"}) {
+mutation CreateChurchData {
+  church: createChurch(
+    data: {
+      name: "HTTL Gia Định"
+      floors: {
+        create: [
+          {
+            name: "Lầu 1"
+            rooms: {
+              create: [
+                { name: "P101" }
+                { name: "P102" }
+                { name: "P103" }
+                { name: "P104" }
+              ]
+            }
+          }
+          {
+            name: "Lầu 2"
+            rooms: {
+              create: [
+                { name: "P201" }
+                { name: "P202" }
+                { name: "P203" }
+                { name: "P204" }
+              ]
+            }
+          }
+          {
+            name: "Lầu 3"
+            rooms: {
+              create: [
+                { name: "Phòng Nhóm Chính" }
+                { name: "Phòng Nhóm Lửng" }
+              ]
+            }
+          }
+          {
+            name: "Lầu 4"
+            rooms: {
+              create: [
+                { name: "P401" }
+                { name: "P402" }
+                { name: "P403" }
+                { name: "P404" }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ) {
     name
+    floors {
+      name
+      rooms {
+        name
+        bookings {
+          id
+        }
+      }
+    }
   }
 }
 
 mutation {
-  createUser(data: {
-    email: "developer@example.com"
-    password: "$2a$10$hACwQ5/HQI6FhbIISOUVeusy3sKyUDhSq36fF5d/54aAdiygJPFzm" # plaintext password: "nooneknows"
-    name: "Sarah"
-    posts: {
-      create: [{
-        title: "Hello World"
-        text: "This is my first blog post ever!"
-        isPublished: true
-      }, {
-        title: "My Second Post"
-        text: "My first post was good, but this one is better!"
-        isPublished: true
-      }, {
-        title: "Solving World Hunger"
-        text: "This is a draft..."
-        isPublished: false
-      }]
+  createUser(
+    data: {
+      email: "developer@example.com"
+      password: "$2a$10$hACwQ5/HQI6FhbIISOUVeusy3sKyUDhSq36fF5d/54aAdiygJPFzm" # plaintext password: "nooneknows"
+      name: "Sarah"
+      posts: {
+        create: [
+          {
+            title: "Hello World"
+            text: "This is my first blog post ever!"
+            isPublished: true
+          }
+          {
+            title: "My Second Post"
+            text: "My first post was good, but this one is better!"
+            isPublished: true
+          }
+          {
+            title: "Solving World Hunger"
+            text: "This is a draft..."
+            isPublished: false
+          }
+        ]
+      }
     }
-  }) {
+  ) {
     id
   }
 }

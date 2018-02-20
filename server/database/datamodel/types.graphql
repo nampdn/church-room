@@ -1,3 +1,12 @@
+type User {
+  id: ID! @unique
+  email: String! @unique
+  password: String!
+  name: String!
+  posts: [Post!]!
+  bookings: [Booking!]! @relation(name: "UserBookings")
+}
+
 type Post {
   id: ID! @unique
   createdAt: DateTime!
@@ -6,14 +15,6 @@ type Post {
   title: String!
   text: String!
   author: User!
-}
-
-type User {
-  id: ID! @unique
-  email: String! @unique
-  password: String!
-  name: String!
-  posts: [Post!]!
 }
 
 type Church {
@@ -33,16 +34,15 @@ type Room {
   id: ID! @unique
   name: String
   floor: Floor! @relation(name: "FloorRoom")
+  bookings: [Booking!]! @relation(name: "RoomBookings")
 }
 
-type Schedule {
+type Booking {
   id: ID! @unique
-  booker: User!
-  roomStatus: ROOM_STATUS
-}
-
-type RentRequest {
-  id: ID! @unique
-  user: User!
   status: REQUEST_STATUS
+  createdAt: DateTime!
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee: User! @relation(name: "UserBookings")
+  room: Room! @relation(name: "RoomBookings")
 }

@@ -9,6 +9,16 @@ export const typeDefs = `
 # Model Types
 #
 
+type Booking implements Node {
+  id: ID!
+  status: REQUEST_STATUS
+  createdAt: DateTime!
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee(where: UserWhereInput): User!
+  room(where: RoomWhereInput): Room!
+}
+
 type Church implements Node {
   id: ID!
   name: String
@@ -32,22 +42,11 @@ type Post implements Node {
   author(where: UserWhereInput): User!
 }
 
-type RentRequest implements Node {
-  id: ID!
-  user(where: UserWhereInput): User!
-  status: REQUEST_STATUS
-}
-
 type Room implements Node {
   id: ID!
   name: String
   floor(where: FloorWhereInput): Floor!
-}
-
-type Schedule implements Node {
-  id: ID!
-  booker(where: UserWhereInput): User!
-  roomStatus: ROOM_STATUS
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
 }
 
 type User implements Node {
@@ -56,12 +55,17 @@ type User implements Node {
   password: String!
   name: String!
   posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
 }
 
 
 #
 # Other Types
 #
+
+type AggregateBooking {
+  count: Int!
+}
 
 type AggregateChurch {
   count: Int!
@@ -75,15 +79,7 @@ type AggregatePost {
   count: Int!
 }
 
-type AggregateRentRequest {
-  count: Int!
-}
-
 type AggregateRoom {
-  count: Int!
-}
-
-type AggregateSchedule {
   count: Int!
 }
 
@@ -93,6 +89,204 @@ type AggregateUser {
 
 type BatchPayload {
   count: Long!
+}
+
+type BookingConnection {
+  pageInfo: PageInfo!
+  edges: [BookingEdge]!
+  aggregate: AggregateBooking!
+}
+
+input BookingCreateInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee: UserCreateOneWithoutBookingsInput!
+  room: RoomCreateOneWithoutBookingsInput!
+}
+
+input BookingCreateManyWithoutBookeeInput {
+  create: [BookingCreateWithoutBookeeInput!]
+  connect: [BookingWhereUniqueInput!]
+}
+
+input BookingCreateManyWithoutRoomInput {
+  create: [BookingCreateWithoutRoomInput!]
+  connect: [BookingWhereUniqueInput!]
+}
+
+input BookingCreateWithoutBookeeInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  room: RoomCreateOneWithoutBookingsInput!
+}
+
+input BookingCreateWithoutRoomInput {
+  status: REQUEST_STATUS
+  startDate: DateTime!
+  endDate: DateTime!
+  bookee: UserCreateOneWithoutBookingsInput!
+}
+
+type BookingEdge {
+  node: Booking!
+  cursor: String!
+}
+
+enum BookingOrderByInput {
+  id_ASC
+  id_DESC
+  status_ASC
+  status_DESC
+  createdAt_ASC
+  createdAt_DESC
+  startDate_ASC
+  startDate_DESC
+  endDate_ASC
+  endDate_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type BookingPreviousValues {
+  id: ID!
+  status: REQUEST_STATUS
+  createdAt: DateTime!
+  startDate: DateTime!
+  endDate: DateTime!
+}
+
+type BookingSubscriptionPayload {
+  mutation: MutationType!
+  node: Booking
+  updatedFields: [String!]
+  previousValues: BookingPreviousValues
+}
+
+input BookingSubscriptionWhereInput {
+  AND: [BookingSubscriptionWhereInput!]
+  OR: [BookingSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: BookingWhereInput
+}
+
+input BookingUpdateInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserUpdateOneWithoutBookingsInput
+  room: RoomUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateManyWithoutBookeeInput {
+  create: [BookingCreateWithoutBookeeInput!]
+  connect: [BookingWhereUniqueInput!]
+  disconnect: [BookingWhereUniqueInput!]
+  delete: [BookingWhereUniqueInput!]
+  update: [BookingUpdateWithoutBookeeInput!]
+  upsert: [BookingUpsertWithoutBookeeInput!]
+}
+
+input BookingUpdateManyWithoutRoomInput {
+  create: [BookingCreateWithoutRoomInput!]
+  connect: [BookingWhereUniqueInput!]
+  disconnect: [BookingWhereUniqueInput!]
+  delete: [BookingWhereUniqueInput!]
+  update: [BookingUpdateWithoutRoomInput!]
+  upsert: [BookingUpsertWithoutRoomInput!]
+}
+
+input BookingUpdateWithoutBookeeDataInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  room: RoomUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateWithoutBookeeInput {
+  where: BookingWhereUniqueInput!
+  data: BookingUpdateWithoutBookeeDataInput!
+}
+
+input BookingUpdateWithoutRoomDataInput {
+  status: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserUpdateOneWithoutBookingsInput
+}
+
+input BookingUpdateWithoutRoomInput {
+  where: BookingWhereUniqueInput!
+  data: BookingUpdateWithoutRoomDataInput!
+}
+
+input BookingUpsertWithoutBookeeInput {
+  where: BookingWhereUniqueInput!
+  update: BookingUpdateWithoutBookeeDataInput!
+  create: BookingCreateWithoutBookeeInput!
+}
+
+input BookingUpsertWithoutRoomInput {
+  where: BookingWhereUniqueInput!
+  update: BookingUpdateWithoutRoomDataInput!
+  create: BookingCreateWithoutRoomInput!
+}
+
+input BookingWhereInput {
+  AND: [BookingWhereInput!]
+  OR: [BookingWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  status: REQUEST_STATUS
+  status_not: REQUEST_STATUS
+  status_in: [REQUEST_STATUS!]
+  status_not_in: [REQUEST_STATUS!]
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  startDate: DateTime
+  startDate_not: DateTime
+  startDate_in: [DateTime!]
+  startDate_not_in: [DateTime!]
+  startDate_lt: DateTime
+  startDate_lte: DateTime
+  startDate_gt: DateTime
+  startDate_gte: DateTime
+  endDate: DateTime
+  endDate_not: DateTime
+  endDate_in: [DateTime!]
+  endDate_not_in: [DateTime!]
+  endDate_lt: DateTime
+  endDate_lte: DateTime
+  endDate_gt: DateTime
+  endDate_gte: DateTime
+  bookee: UserWhereInput
+  room: RoomWhereInput
+}
+
+input BookingWhereUniqueInput {
+  id: ID
 }
 
 type ChurchConnection {
@@ -395,48 +589,42 @@ input FloorWhereUniqueInput {
 scalar Long
 
 type Mutation {
-  createPost(data: PostCreateInput!): Post!
   createUser(data: UserCreateInput!): User!
+  createPost(data: PostCreateInput!): Post!
   createChurch(data: ChurchCreateInput!): Church!
   createFloor(data: FloorCreateInput!): Floor!
   createRoom(data: RoomCreateInput!): Room!
-  createSchedule(data: ScheduleCreateInput!): Schedule!
-  createRentRequest(data: RentRequestCreateInput!): RentRequest!
-  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
+  createBooking(data: BookingCreateInput!): Booking!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
   updateChurch(data: ChurchUpdateInput!, where: ChurchWhereUniqueInput!): Church
   updateFloor(data: FloorUpdateInput!, where: FloorWhereUniqueInput!): Floor
   updateRoom(data: RoomUpdateInput!, where: RoomWhereUniqueInput!): Room
-  updateSchedule(data: ScheduleUpdateInput!, where: ScheduleWhereUniqueInput!): Schedule
-  updateRentRequest(data: RentRequestUpdateInput!, where: RentRequestWhereUniqueInput!): RentRequest
-  deletePost(where: PostWhereUniqueInput!): Post
+  updateBooking(data: BookingUpdateInput!, where: BookingWhereUniqueInput!): Booking
   deleteUser(where: UserWhereUniqueInput!): User
+  deletePost(where: PostWhereUniqueInput!): Post
   deleteChurch(where: ChurchWhereUniqueInput!): Church
   deleteFloor(where: FloorWhereUniqueInput!): Floor
   deleteRoom(where: RoomWhereUniqueInput!): Room
-  deleteSchedule(where: ScheduleWhereUniqueInput!): Schedule
-  deleteRentRequest(where: RentRequestWhereUniqueInput!): RentRequest
-  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
+  deleteBooking(where: BookingWhereUniqueInput!): Booking
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
   upsertChurch(where: ChurchWhereUniqueInput!, create: ChurchCreateInput!, update: ChurchUpdateInput!): Church!
   upsertFloor(where: FloorWhereUniqueInput!, create: FloorCreateInput!, update: FloorUpdateInput!): Floor!
   upsertRoom(where: RoomWhereUniqueInput!, create: RoomCreateInput!, update: RoomUpdateInput!): Room!
-  upsertSchedule(where: ScheduleWhereUniqueInput!, create: ScheduleCreateInput!, update: ScheduleUpdateInput!): Schedule!
-  upsertRentRequest(where: RentRequestWhereUniqueInput!, create: RentRequestCreateInput!, update: RentRequestUpdateInput!): RentRequest!
-  updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
+  upsertBooking(where: BookingWhereUniqueInput!, create: BookingCreateInput!, update: BookingUpdateInput!): Booking!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
+  updateManyPosts(data: PostUpdateInput!, where: PostWhereInput!): BatchPayload!
   updateManyChurches(data: ChurchUpdateInput!, where: ChurchWhereInput!): BatchPayload!
   updateManyFloors(data: FloorUpdateInput!, where: FloorWhereInput!): BatchPayload!
   updateManyRooms(data: RoomUpdateInput!, where: RoomWhereInput!): BatchPayload!
-  updateManySchedules(data: ScheduleUpdateInput!, where: ScheduleWhereInput!): BatchPayload!
-  updateManyRentRequests(data: RentRequestUpdateInput!, where: RentRequestWhereInput!): BatchPayload!
-  deleteManyPosts(where: PostWhereInput!): BatchPayload!
+  updateManyBookings(data: BookingUpdateInput!, where: BookingWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyPosts(where: PostWhereInput!): BatchPayload!
   deleteManyChurches(where: ChurchWhereInput!): BatchPayload!
   deleteManyFloors(where: FloorWhereInput!): BatchPayload!
   deleteManyRooms(where: RoomWhereInput!): BatchPayload!
-  deleteManySchedules(where: ScheduleWhereInput!): BatchPayload!
-  deleteManyRentRequests(where: RentRequestWhereInput!): BatchPayload!
+  deleteManyBookings(where: BookingWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -630,110 +818,25 @@ input PostWhereUniqueInput {
 }
 
 type Query {
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   churches(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Church]!
   floors(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Floor]!
   rooms(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Room]!
-  schedules(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Schedule]!
-  rentRequests(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RentRequest]!
-  post(where: PostWhereUniqueInput!): Post
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking]!
   user(where: UserWhereUniqueInput!): User
+  post(where: PostWhereUniqueInput!): Post
   church(where: ChurchWhereUniqueInput!): Church
   floor(where: FloorWhereUniqueInput!): Floor
   room(where: RoomWhereUniqueInput!): Room
-  schedule(where: ScheduleWhereUniqueInput!): Schedule
-  rentRequest(where: RentRequestWhereUniqueInput!): RentRequest
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
+  booking(where: BookingWhereUniqueInput!): Booking
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
   churchesConnection(where: ChurchWhereInput, orderBy: ChurchOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ChurchConnection!
   floorsConnection(where: FloorWhereInput, orderBy: FloorOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FloorConnection!
   roomsConnection(where: RoomWhereInput, orderBy: RoomOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RoomConnection!
-  schedulesConnection(where: ScheduleWhereInput, orderBy: ScheduleOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ScheduleConnection!
-  rentRequestsConnection(where: RentRequestWhereInput, orderBy: RentRequestOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RentRequestConnection!
+  bookingsConnection(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): BookingConnection!
   node(id: ID!): Node
-}
-
-type RentRequestConnection {
-  pageInfo: PageInfo!
-  edges: [RentRequestEdge]!
-  aggregate: AggregateRentRequest!
-}
-
-input RentRequestCreateInput {
-  status: REQUEST_STATUS
-  user: UserCreateOneInput!
-}
-
-type RentRequestEdge {
-  node: RentRequest!
-  cursor: String!
-}
-
-enum RentRequestOrderByInput {
-  id_ASC
-  id_DESC
-  status_ASC
-  status_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
-}
-
-type RentRequestPreviousValues {
-  id: ID!
-  status: REQUEST_STATUS
-}
-
-type RentRequestSubscriptionPayload {
-  mutation: MutationType!
-  node: RentRequest
-  updatedFields: [String!]
-  previousValues: RentRequestPreviousValues
-}
-
-input RentRequestSubscriptionWhereInput {
-  AND: [RentRequestSubscriptionWhereInput!]
-  OR: [RentRequestSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: RentRequestWhereInput
-}
-
-input RentRequestUpdateInput {
-  status: REQUEST_STATUS
-  user: UserUpdateOneInput
-}
-
-input RentRequestWhereInput {
-  AND: [RentRequestWhereInput!]
-  OR: [RentRequestWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  status: REQUEST_STATUS
-  status_not: REQUEST_STATUS
-  status_in: [REQUEST_STATUS!]
-  status_not_in: [REQUEST_STATUS!]
-  user: UserWhereInput
-}
-
-input RentRequestWhereUniqueInput {
-  id: ID
 }
 
 enum REQUEST_STATUS {
@@ -741,11 +844,6 @@ enum REQUEST_STATUS {
   PENDING
   REJECTED
   APPROVED
-}
-
-enum ROOM_STATUS {
-  FREE
-  INUSE
 }
 
 type RoomConnection {
@@ -757,6 +855,7 @@ type RoomConnection {
 input RoomCreateInput {
   name: String
   floor: FloorCreateOneWithoutRoomsInput!
+  bookings: BookingCreateManyWithoutRoomInput
 }
 
 input RoomCreateManyWithoutFloorInput {
@@ -764,8 +863,19 @@ input RoomCreateManyWithoutFloorInput {
   connect: [RoomWhereUniqueInput!]
 }
 
+input RoomCreateOneWithoutBookingsInput {
+  create: RoomCreateWithoutBookingsInput
+  connect: RoomWhereUniqueInput
+}
+
+input RoomCreateWithoutBookingsInput {
+  name: String
+  floor: FloorCreateOneWithoutRoomsInput!
+}
+
 input RoomCreateWithoutFloorInput {
   name: String
+  bookings: BookingCreateManyWithoutRoomInput
 }
 
 type RoomEdge {
@@ -809,6 +919,7 @@ input RoomSubscriptionWhereInput {
 input RoomUpdateInput {
   name: String
   floor: FloorUpdateOneWithoutRoomsInput
+  bookings: BookingUpdateManyWithoutRoomInput
 }
 
 input RoomUpdateManyWithoutFloorInput {
@@ -820,13 +931,39 @@ input RoomUpdateManyWithoutFloorInput {
   upsert: [RoomUpsertWithoutFloorInput!]
 }
 
+input RoomUpdateOneWithoutBookingsInput {
+  create: RoomCreateWithoutBookingsInput
+  connect: RoomWhereUniqueInput
+  disconnect: RoomWhereUniqueInput
+  delete: RoomWhereUniqueInput
+  update: RoomUpdateWithoutBookingsInput
+  upsert: RoomUpsertWithoutBookingsInput
+}
+
+input RoomUpdateWithoutBookingsDataInput {
+  name: String
+  floor: FloorUpdateOneWithoutRoomsInput
+}
+
+input RoomUpdateWithoutBookingsInput {
+  where: RoomWhereUniqueInput!
+  data: RoomUpdateWithoutBookingsDataInput!
+}
+
 input RoomUpdateWithoutFloorDataInput {
   name: String
+  bookings: BookingUpdateManyWithoutRoomInput
 }
 
 input RoomUpdateWithoutFloorInput {
   where: RoomWhereUniqueInput!
   data: RoomUpdateWithoutFloorDataInput!
+}
+
+input RoomUpsertWithoutBookingsInput {
+  where: RoomWhereUniqueInput!
+  update: RoomUpdateWithoutBookingsDataInput!
+  create: RoomCreateWithoutBookingsInput!
 }
 
 input RoomUpsertWithoutFloorInput {
@@ -867,102 +1004,22 @@ input RoomWhereInput {
   name_ends_with: String
   name_not_ends_with: String
   floor: FloorWhereInput
+  bookings_every: BookingWhereInput
+  bookings_some: BookingWhereInput
+  bookings_none: BookingWhereInput
 }
 
 input RoomWhereUniqueInput {
   id: ID
 }
 
-type ScheduleConnection {
-  pageInfo: PageInfo!
-  edges: [ScheduleEdge]!
-  aggregate: AggregateSchedule!
-}
-
-input ScheduleCreateInput {
-  roomStatus: ROOM_STATUS
-  booker: UserCreateOneInput!
-}
-
-type ScheduleEdge {
-  node: Schedule!
-  cursor: String!
-}
-
-enum ScheduleOrderByInput {
-  id_ASC
-  id_DESC
-  roomStatus_ASC
-  roomStatus_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
-}
-
-type SchedulePreviousValues {
-  id: ID!
-  roomStatus: ROOM_STATUS
-}
-
-type ScheduleSubscriptionPayload {
-  mutation: MutationType!
-  node: Schedule
-  updatedFields: [String!]
-  previousValues: SchedulePreviousValues
-}
-
-input ScheduleSubscriptionWhereInput {
-  AND: [ScheduleSubscriptionWhereInput!]
-  OR: [ScheduleSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: ScheduleWhereInput
-}
-
-input ScheduleUpdateInput {
-  roomStatus: ROOM_STATUS
-  booker: UserUpdateOneInput
-}
-
-input ScheduleWhereInput {
-  AND: [ScheduleWhereInput!]
-  OR: [ScheduleWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  roomStatus: ROOM_STATUS
-  roomStatus_not: ROOM_STATUS
-  roomStatus_in: [ROOM_STATUS!]
-  roomStatus_not_in: [ROOM_STATUS!]
-  booker: UserWhereInput
-}
-
-input ScheduleWhereUniqueInput {
-  id: ID
-}
-
 type Subscription {
-  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   church(where: ChurchSubscriptionWhereInput): ChurchSubscriptionPayload
   floor(where: FloorSubscriptionWhereInput): FloorSubscriptionPayload
   room(where: RoomSubscriptionWhereInput): RoomSubscriptionPayload
-  schedule(where: ScheduleSubscriptionWhereInput): ScheduleSubscriptionPayload
-  rentRequest(where: RentRequestSubscriptionWhereInput): RentRequestSubscriptionPayload
+  booking(where: BookingSubscriptionWhereInput): BookingSubscriptionPayload
 }
 
 type UserConnection {
@@ -976,10 +1033,11 @@ input UserCreateInput {
   password: String!
   name: String!
   posts: PostCreateManyWithoutAuthorInput
+  bookings: BookingCreateManyWithoutBookeeInput
 }
 
-input UserCreateOneInput {
-  create: UserCreateInput
+input UserCreateOneWithoutBookingsInput {
+  create: UserCreateWithoutBookingsInput
   connect: UserWhereUniqueInput
 }
 
@@ -988,10 +1046,18 @@ input UserCreateOneWithoutPostsInput {
   connect: UserWhereUniqueInput
 }
 
+input UserCreateWithoutBookingsInput {
+  email: String!
+  password: String!
+  name: String!
+  posts: PostCreateManyWithoutAuthorInput
+}
+
 input UserCreateWithoutPostsInput {
   email: String!
   password: String!
   name: String!
+  bookings: BookingCreateManyWithoutBookeeInput
 }
 
 type UserEdge {
@@ -1038,32 +1104,21 @@ input UserSubscriptionWhereInput {
   node: UserWhereInput
 }
 
-input UserUpdateDataInput {
-  email: String
-  password: String
-  name: String
-  posts: PostUpdateManyWithoutAuthorInput
-}
-
 input UserUpdateInput {
   email: String
   password: String
   name: String
   posts: PostUpdateManyWithoutAuthorInput
+  bookings: BookingUpdateManyWithoutBookeeInput
 }
 
-input UserUpdateNestedInput {
-  where: UserWhereUniqueInput!
-  data: UserUpdateDataInput!
-}
-
-input UserUpdateOneInput {
-  create: UserCreateInput
+input UserUpdateOneWithoutBookingsInput {
+  create: UserCreateWithoutBookingsInput
   connect: UserWhereUniqueInput
   disconnect: UserWhereUniqueInput
   delete: UserWhereUniqueInput
-  update: UserUpdateNestedInput
-  upsert: UserUpsertNestedInput
+  update: UserUpdateWithoutBookingsInput
+  upsert: UserUpsertWithoutBookingsInput
 }
 
 input UserUpdateOneWithoutPostsInput {
@@ -1075,10 +1130,23 @@ input UserUpdateOneWithoutPostsInput {
   upsert: UserUpsertWithoutPostsInput
 }
 
+input UserUpdateWithoutBookingsDataInput {
+  email: String
+  password: String
+  name: String
+  posts: PostUpdateManyWithoutAuthorInput
+}
+
+input UserUpdateWithoutBookingsInput {
+  where: UserWhereUniqueInput!
+  data: UserUpdateWithoutBookingsDataInput!
+}
+
 input UserUpdateWithoutPostsDataInput {
   email: String
   password: String
   name: String
+  bookings: BookingUpdateManyWithoutBookeeInput
 }
 
 input UserUpdateWithoutPostsInput {
@@ -1086,10 +1154,10 @@ input UserUpdateWithoutPostsInput {
   data: UserUpdateWithoutPostsDataInput!
 }
 
-input UserUpsertNestedInput {
+input UserUpsertWithoutBookingsInput {
   where: UserWhereUniqueInput!
-  update: UserUpdateDataInput!
-  create: UserCreateInput!
+  update: UserUpdateWithoutBookingsDataInput!
+  create: UserCreateWithoutBookingsInput!
 }
 
 input UserUpsertWithoutPostsInput {
@@ -1160,6 +1228,9 @@ input UserWhereInput {
   posts_every: PostWhereInput
   posts_some: PostWhereInput
   posts_none: PostWhereInput
+  bookings_every: BookingWhereInput
+  bookings_some: BookingWhereInput
+  bookings_none: BookingWhereInput
 }
 
 input UserWhereUniqueInput {
@@ -1167,20 +1238,6 @@ input UserWhereUniqueInput {
   email: String
 }
 `
-
-export type PostOrderByInput = 
-  'id_ASC' |
-  'id_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'isPublished_ASC' |
-  'isPublished_DESC' |
-  'title_ASC' |
-  'title_DESC' |
-  'text_ASC' |
-  'text_DESC'
 
 export type UserOrderByInput = 
   'id_ASC' |
@@ -1196,15 +1253,39 @@ export type UserOrderByInput =
   'createdAt_ASC' |
   'createdAt_DESC'
 
-export type ChurchOrderByInput = 
+export type PostOrderByInput = 
   'id_ASC' |
   'id_DESC' |
-  'name_ASC' |
-  'name_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
   'updatedAt_ASC' |
   'updatedAt_DESC' |
+  'isPublished_ASC' |
+  'isPublished_DESC' |
+  'title_ASC' |
+  'title_DESC' |
+  'text_ASC' |
+  'text_DESC'
+
+export type REQUEST_STATUS = 
+  'SUBMITTED' |
+  'PENDING' |
+  'REJECTED' |
+  'APPROVED'
+
+export type BookingOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'status_ASC' |
+  'status_DESC' |
   'createdAt_ASC' |
-  'createdAt_DESC'
+  'createdAt_DESC' |
+  'startDate_ASC' |
+  'startDate_DESC' |
+  'endDate_ASC' |
+  'endDate_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC'
 
 export type FloorOrderByInput = 
   'id_ASC' |
@@ -1226,43 +1307,558 @@ export type RoomOrderByInput =
   'createdAt_ASC' |
   'createdAt_DESC'
 
-export type ROOM_STATUS = 
-  'FREE' |
-  'INUSE'
+export type ChurchOrderByInput = 
+  'id_ASC' |
+  'id_DESC' |
+  'name_ASC' |
+  'name_DESC' |
+  'updatedAt_ASC' |
+  'updatedAt_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC'
 
 export type MutationType = 
   'CREATED' |
   'UPDATED' |
   'DELETED'
 
-export type ScheduleOrderByInput = 
-  'id_ASC' |
-  'id_DESC' |
-  'roomStatus_ASC' |
-  'roomStatus_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC'
+export interface UserCreateOneWithoutBookingsInput {
+  create?: UserCreateWithoutBookingsInput
+  connect?: UserWhereUniqueInput
+}
 
-export type REQUEST_STATUS = 
-  'SUBMITTED' |
-  'PENDING' |
-  'REJECTED' |
-  'APPROVED'
+export interface UserWhereInput {
+  AND?: UserWhereInput[] | UserWhereInput
+  OR?: UserWhereInput[] | UserWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  email?: String
+  email_not?: String
+  email_in?: String[] | String
+  email_not_in?: String[] | String
+  email_lt?: String
+  email_lte?: String
+  email_gt?: String
+  email_gte?: String
+  email_contains?: String
+  email_not_contains?: String
+  email_starts_with?: String
+  email_not_starts_with?: String
+  email_ends_with?: String
+  email_not_ends_with?: String
+  password?: String
+  password_not?: String
+  password_in?: String[] | String
+  password_not_in?: String[] | String
+  password_lt?: String
+  password_lte?: String
+  password_gt?: String
+  password_gte?: String
+  password_contains?: String
+  password_not_contains?: String
+  password_starts_with?: String
+  password_not_starts_with?: String
+  password_ends_with?: String
+  password_not_ends_with?: String
+  name?: String
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  posts_every?: PostWhereInput
+  posts_some?: PostWhereInput
+  posts_none?: PostWhereInput
+  bookings_every?: BookingWhereInput
+  bookings_some?: BookingWhereInput
+  bookings_none?: BookingWhereInput
+}
 
-export type RentRequestOrderByInput = 
-  'id_ASC' |
-  'id_DESC' |
-  'status_ASC' |
-  'status_DESC' |
-  'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC'
+export interface UserUpdateInput {
+  email?: String
+  password?: String
+  name?: String
+  posts?: PostUpdateManyWithoutAuthorInput
+  bookings?: BookingUpdateManyWithoutBookeeInput
+}
+
+export interface ChurchWhereInput {
+  AND?: ChurchWhereInput[] | ChurchWhereInput
+  OR?: ChurchWhereInput[] | ChurchWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  name?: String
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  floors_every?: FloorWhereInput
+  floors_some?: FloorWhereInput
+  floors_none?: FloorWhereInput
+}
+
+export interface RoomCreateWithoutBookingsInput {
+  name?: String
+  floor: FloorCreateOneWithoutRoomsInput
+}
+
+export interface UserUpdateWithoutPostsInput {
+  where: UserWhereUniqueInput
+  data: UserUpdateWithoutPostsDataInput
+}
+
+export interface FloorCreateOneWithoutRoomsInput {
+  create?: FloorCreateWithoutRoomsInput
+  connect?: FloorWhereUniqueInput
+}
+
+export interface PostUpdateManyWithoutAuthorInput {
+  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
+  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  disconnect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  delete?: PostWhereUniqueInput[] | PostWhereUniqueInput
+  update?: PostUpdateWithoutAuthorInput[] | PostUpdateWithoutAuthorInput
+  upsert?: PostUpsertWithoutAuthorInput[] | PostUpsertWithoutAuthorInput
+}
+
+export interface FloorCreateWithoutRoomsInput {
+  name?: String
+  church: ChurchCreateOneWithoutFloorsInput
+}
+
+export interface RoomWhereInput {
+  AND?: RoomWhereInput[] | RoomWhereInput
+  OR?: RoomWhereInput[] | RoomWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  name?: String
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  floor?: FloorWhereInput
+  bookings_every?: BookingWhereInput
+  bookings_some?: BookingWhereInput
+  bookings_none?: BookingWhereInput
+}
+
+export interface ChurchCreateOneWithoutFloorsInput {
+  create?: ChurchCreateWithoutFloorsInput
+  connect?: ChurchWhereUniqueInput
+}
+
+export interface BookingWhereInput {
+  AND?: BookingWhereInput[] | BookingWhereInput
+  OR?: BookingWhereInput[] | BookingWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  status?: REQUEST_STATUS
+  status_not?: REQUEST_STATUS
+  status_in?: REQUEST_STATUS[] | REQUEST_STATUS
+  status_not_in?: REQUEST_STATUS[] | REQUEST_STATUS
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
+  startDate?: DateTime
+  startDate_not?: DateTime
+  startDate_in?: DateTime[] | DateTime
+  startDate_not_in?: DateTime[] | DateTime
+  startDate_lt?: DateTime
+  startDate_lte?: DateTime
+  startDate_gt?: DateTime
+  startDate_gte?: DateTime
+  endDate?: DateTime
+  endDate_not?: DateTime
+  endDate_in?: DateTime[] | DateTime
+  endDate_not_in?: DateTime[] | DateTime
+  endDate_lt?: DateTime
+  endDate_lte?: DateTime
+  endDate_gt?: DateTime
+  endDate_gte?: DateTime
+  bookee?: UserWhereInput
+  room?: RoomWhereInput
+}
+
+export interface ChurchCreateWithoutFloorsInput {
+  name?: String
+}
+
+export interface FloorSubscriptionWhereInput {
+  AND?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
+  OR?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: FloorWhereInput
+}
+
+export interface PostCreateInput {
+  isPublished?: Boolean
+  title: String
+  text: String
+  author: UserCreateOneWithoutPostsInput
+}
+
+export interface PostSubscriptionWhereInput {
+  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: PostWhereInput
+}
+
+export interface UserCreateOneWithoutPostsInput {
+  create?: UserCreateWithoutPostsInput
+  connect?: UserWhereUniqueInput
+}
+
+export interface BookingUpdateInput {
+  status?: REQUEST_STATUS
+  startDate?: DateTime
+  endDate?: DateTime
+  bookee?: UserUpdateOneWithoutBookingsInput
+  room?: RoomUpdateOneWithoutBookingsInput
+}
+
+export interface UserCreateWithoutPostsInput {
+  email: String
+  password: String
+  name: String
+  bookings?: BookingCreateManyWithoutBookeeInput
+}
+
+export interface UserWhereUniqueInput {
+  id?: ID_Input
+  email?: String
+}
+
+export interface ChurchCreateInput {
+  name?: String
+  floors?: FloorCreateManyWithoutChurchInput
+}
+
+export interface ChurchWhereUniqueInput {
+  id?: ID_Input
+  name?: String
+}
+
+export interface FloorCreateManyWithoutChurchInput {
+  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
+  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+}
+
+export interface RoomWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface FloorCreateWithoutChurchInput {
+  name?: String
+  rooms?: RoomCreateManyWithoutFloorInput
+}
+
+export interface RoomUpdateInput {
+  name?: String
+  floor?: FloorUpdateOneWithoutRoomsInput
+  bookings?: BookingUpdateManyWithoutRoomInput
+}
+
+export interface RoomCreateManyWithoutFloorInput {
+  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
+  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+}
+
+export interface FloorUpsertWithoutChurchInput {
+  where: FloorWhereUniqueInput
+  update: FloorUpdateWithoutChurchDataInput
+  create: FloorCreateWithoutChurchInput
+}
 
 export interface RoomCreateWithoutFloorInput {
   name?: String
+  bookings?: BookingCreateManyWithoutRoomInput
+}
+
+export interface BookingUpsertWithoutRoomInput {
+  where: BookingWhereUniqueInput
+  update: BookingUpdateWithoutRoomDataInput
+  create: BookingCreateWithoutRoomInput
+}
+
+export interface BookingCreateManyWithoutRoomInput {
+  create?: BookingCreateWithoutRoomInput[] | BookingCreateWithoutRoomInput
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+}
+
+export interface UserUpdateWithoutBookingsDataInput {
+  email?: String
+  password?: String
+  name?: String
+  posts?: PostUpdateManyWithoutAuthorInput
+}
+
+export interface BookingCreateWithoutRoomInput {
+  status?: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserCreateOneWithoutBookingsInput
+}
+
+export interface UserUpdateOneWithoutBookingsInput {
+  create?: UserCreateWithoutBookingsInput
+  connect?: UserWhereUniqueInput
+  disconnect?: UserWhereUniqueInput
+  delete?: UserWhereUniqueInput
+  update?: UserUpdateWithoutBookingsInput
+  upsert?: UserUpsertWithoutBookingsInput
+}
+
+export interface UserUpsertWithoutPostsInput {
+  where: UserWhereUniqueInput
+  update: UserUpdateWithoutPostsDataInput
+  create: UserCreateWithoutPostsInput
+}
+
+export interface BookingUpdateWithoutRoomInput {
+  where: BookingWhereUniqueInput
+  data: BookingUpdateWithoutRoomDataInput
+}
+
+export interface UserCreateWithoutBookingsInput {
+  email: String
+  password: String
+  name: String
+  posts?: PostCreateManyWithoutAuthorInput
+}
+
+export interface RoomUpdateWithoutFloorDataInput {
+  name?: String
+  bookings?: BookingUpdateManyWithoutRoomInput
+}
+
+export interface FloorCreateInput {
+  name?: String
+  church: ChurchCreateOneWithoutFloorsInput
+  rooms?: RoomCreateManyWithoutFloorInput
+}
+
+export interface RoomUpdateManyWithoutFloorInput {
+  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
+  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  disconnect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  delete?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
+  update?: RoomUpdateWithoutFloorInput[] | RoomUpdateWithoutFloorInput
+  upsert?: RoomUpsertWithoutFloorInput[] | RoomUpsertWithoutFloorInput
+}
+
+export interface RoomCreateInput {
+  name?: String
+  floor: FloorCreateOneWithoutRoomsInput
+  bookings?: BookingCreateManyWithoutRoomInput
+}
+
+export interface FloorUpdateWithoutChurchInput {
+  where: FloorWhereUniqueInput
+  data: FloorUpdateWithoutChurchDataInput
+}
+
+export interface BookingCreateInput {
+  status?: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  bookee: UserCreateOneWithoutBookingsInput
+  room: RoomCreateOneWithoutBookingsInput
+}
+
+export interface ChurchUpdateInput {
+  name?: String
+  floors?: FloorUpdateManyWithoutChurchInput
+}
+
+export interface FloorWhereInput {
+  AND?: FloorWhereInput[] | FloorWhereInput
+  OR?: FloorWhereInput[] | FloorWhereInput
+  id?: ID_Input
+  id_not?: ID_Input
+  id_in?: ID_Input[] | ID_Input
+  id_not_in?: ID_Input[] | ID_Input
+  id_lt?: ID_Input
+  id_lte?: ID_Input
+  id_gt?: ID_Input
+  id_gte?: ID_Input
+  id_contains?: ID_Input
+  id_not_contains?: ID_Input
+  id_starts_with?: ID_Input
+  id_not_starts_with?: ID_Input
+  id_ends_with?: ID_Input
+  id_not_ends_with?: ID_Input
+  name?: String
+  name_not?: String
+  name_in?: String[] | String
+  name_not_in?: String[] | String
+  name_lt?: String
+  name_lte?: String
+  name_gt?: String
+  name_gte?: String
+  name_contains?: String
+  name_not_contains?: String
+  name_starts_with?: String
+  name_not_starts_with?: String
+  name_ends_with?: String
+  name_not_ends_with?: String
+  church?: ChurchWhereInput
+  rooms_every?: RoomWhereInput
+  rooms_some?: RoomWhereInput
+  rooms_none?: RoomWhereInput
+}
+
+export interface PostCreateManyWithoutAuthorInput {
+  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
+  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
+}
+
+export interface UserUpdateWithoutPostsDataInput {
+  email?: String
+  password?: String
+  name?: String
+  bookings?: BookingUpdateManyWithoutBookeeInput
+}
+
+export interface BookingCreateManyWithoutBookeeInput {
+  create?: BookingCreateWithoutBookeeInput[] | BookingCreateWithoutBookeeInput
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+}
+
+export interface PostUpdateWithoutAuthorInput {
+  where: PostWhereUniqueInput
+  data: PostUpdateWithoutAuthorDataInput
+}
+
+export interface RoomCreateOneWithoutBookingsInput {
+  create?: RoomCreateWithoutBookingsInput
+  connect?: RoomWhereUniqueInput
+}
+
+export interface PostUpdateWithoutAuthorDataInput {
+  isPublished?: Boolean
+  title?: String
+  text?: String
+}
+
+export interface BookingSubscriptionWhereInput {
+  AND?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput
+  OR?: BookingSubscriptionWhereInput[] | BookingSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: BookingWhereInput
+}
+
+export interface PostUpsertWithoutAuthorInput {
+  where: PostWhereUniqueInput
+  update: PostUpdateWithoutAuthorDataInput
+  create: PostCreateWithoutAuthorInput
+}
+
+export interface ChurchSubscriptionWhereInput {
+  AND?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
+  OR?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: ChurchWhereInput
+}
+
+export interface BookingUpdateManyWithoutBookeeInput {
+  create?: BookingCreateWithoutBookeeInput[] | BookingCreateWithoutBookeeInput
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  disconnect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  delete?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  update?: BookingUpdateWithoutBookeeInput[] | BookingUpdateWithoutBookeeInput
+  upsert?: BookingUpsertWithoutBookeeInput[] | BookingUpsertWithoutBookeeInput
 }
 
 export interface PostWhereInput {
@@ -1331,501 +1927,63 @@ export interface PostWhereInput {
   author?: UserWhereInput
 }
 
-export interface FloorCreateWithoutRoomsInput {
-  name?: String
-  church: ChurchCreateOneWithoutFloorsInput
-}
-
-export interface ChurchWhereInput {
-  AND?: ChurchWhereInput[] | ChurchWhereInput
-  OR?: ChurchWhereInput[] | ChurchWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  floors_every?: FloorWhereInput
-  floors_some?: FloorWhereInput
-  floors_none?: FloorWhereInput
-}
-
-export interface ScheduleCreateInput {
-  roomStatus?: ROOM_STATUS
-  booker: UserCreateOneInput
-}
-
-export interface RoomWhereInput {
-  AND?: RoomWhereInput[] | RoomWhereInput
-  OR?: RoomWhereInput[] | RoomWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  floor?: FloorWhereInput
-}
-
-export interface RoomUpsertWithoutFloorInput {
-  where: RoomWhereUniqueInput
-  update: RoomUpdateWithoutFloorDataInput
-  create: RoomCreateWithoutFloorInput
-}
-
-export interface PostUpsertWithoutAuthorInput {
-  where: PostWhereUniqueInput
-  update: PostUpdateWithoutAuthorDataInput
-  create: PostCreateWithoutAuthorInput
-}
-
-export interface RoomUpdateWithoutFloorDataInput {
-  name?: String
-}
-
-export interface UserCreateOneInput {
-  create?: UserCreateInput
-  connect?: UserWhereUniqueInput
-}
-
-export interface RoomUpdateWithoutFloorInput {
-  where: RoomWhereUniqueInput
-  data: RoomUpdateWithoutFloorDataInput
-}
-
-export interface ScheduleSubscriptionWhereInput {
-  AND?: ScheduleSubscriptionWhereInput[] | ScheduleSubscriptionWhereInput
-  OR?: ScheduleSubscriptionWhereInput[] | ScheduleSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: ScheduleWhereInput
-}
-
-export interface RoomUpdateManyWithoutFloorInput {
-  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
-  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  disconnect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  delete?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-  update?: RoomUpdateWithoutFloorInput[] | RoomUpdateWithoutFloorInput
-  upsert?: RoomUpsertWithoutFloorInput[] | RoomUpsertWithoutFloorInput
-}
-
-export interface ScheduleWhereInput {
-  AND?: ScheduleWhereInput[] | ScheduleWhereInput
-  OR?: ScheduleWhereInput[] | ScheduleWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  roomStatus?: ROOM_STATUS
-  roomStatus_not?: ROOM_STATUS
-  roomStatus_in?: ROOM_STATUS[] | ROOM_STATUS
-  roomStatus_not_in?: ROOM_STATUS[] | ROOM_STATUS
-  booker?: UserWhereInput
-}
-
-export interface FloorUpdateWithoutChurchDataInput {
-  name?: String
-  rooms?: RoomUpdateManyWithoutFloorInput
-}
-
-export interface UserWhereInput {
-  AND?: UserWhereInput[] | UserWhereInput
-  OR?: UserWhereInput[] | UserWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  email?: String
-  email_not?: String
-  email_in?: String[] | String
-  email_not_in?: String[] | String
-  email_lt?: String
-  email_lte?: String
-  email_gt?: String
-  email_gte?: String
-  email_contains?: String
-  email_not_contains?: String
-  email_starts_with?: String
-  email_not_starts_with?: String
-  email_ends_with?: String
-  email_not_ends_with?: String
-  password?: String
-  password_not?: String
-  password_in?: String[] | String
-  password_not_in?: String[] | String
-  password_lt?: String
-  password_lte?: String
-  password_gt?: String
-  password_gte?: String
-  password_contains?: String
-  password_not_contains?: String
-  password_starts_with?: String
-  password_not_starts_with?: String
-  password_ends_with?: String
-  password_not_ends_with?: String
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  posts_every?: PostWhereInput
-  posts_some?: PostWhereInput
-  posts_none?: PostWhereInput
-}
-
-export interface FloorUpdateWithoutChurchInput {
-  where: FloorWhereUniqueInput
-  data: FloorUpdateWithoutChurchDataInput
-}
-
-export interface RentRequestWhereInput {
-  AND?: RentRequestWhereInput[] | RentRequestWhereInput
-  OR?: RentRequestWhereInput[] | RentRequestWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  status?: REQUEST_STATUS
-  status_not?: REQUEST_STATUS
-  status_in?: REQUEST_STATUS[] | REQUEST_STATUS
-  status_not_in?: REQUEST_STATUS[] | REQUEST_STATUS
-  user?: UserWhereInput
-}
-
-export interface PostCreateInput {
-  isPublished?: Boolean
-  title: String
-  text: String
-  author: UserCreateOneWithoutPostsInput
-}
-
-export interface PostSubscriptionWhereInput {
-  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
-  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: PostWhereInput
-}
-
-export interface UserCreateOneWithoutPostsInput {
-  create?: UserCreateWithoutPostsInput
-  connect?: UserWhereUniqueInput
-}
-
-export interface PostWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface UserCreateWithoutPostsInput {
-  email: String
-  password: String
-  name: String
-}
-
-export interface ChurchWhereUniqueInput {
-  id?: ID_Input
-  name?: String
-}
-
-export interface UserCreateInput {
-  email: String
-  password: String
-  name: String
-  posts?: PostCreateManyWithoutAuthorInput
-}
-
-export interface RoomWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface PostCreateManyWithoutAuthorInput {
-  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
-  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-}
-
-export interface RentRequestWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface PostCreateWithoutAuthorInput {
-  isPublished?: Boolean
-  title: String
-  text: String
-}
-
-export interface UserUpdateDataInput {
-  email?: String
-  password?: String
-  name?: String
-  posts?: PostUpdateManyWithoutAuthorInput
-}
-
-export interface ChurchCreateInput {
-  name?: String
-  floors?: FloorCreateManyWithoutChurchInput
-}
-
-export interface UserUpdateOneInput {
-  create?: UserCreateInput
-  connect?: UserWhereUniqueInput
-  disconnect?: UserWhereUniqueInput
-  delete?: UserWhereUniqueInput
-  update?: UserUpdateNestedInput
-  upsert?: UserUpsertNestedInput
-}
-
-export interface FloorCreateManyWithoutChurchInput {
-  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
-  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-}
-
-export interface FloorUpsertWithoutRoomsInput {
-  where: FloorWhereUniqueInput
-  update: FloorUpdateWithoutRoomsDataInput
-  create: FloorCreateWithoutRoomsInput
-}
-
-export interface FloorCreateWithoutChurchInput {
-  name?: String
-  rooms?: RoomCreateManyWithoutFloorInput
-}
-
-export interface FloorUpdateWithoutRoomsInput {
-  where: FloorWhereUniqueInput
-  data: FloorUpdateWithoutRoomsDataInput
-}
-
-export interface RoomCreateManyWithoutFloorInput {
-  create?: RoomCreateWithoutFloorInput[] | RoomCreateWithoutFloorInput
-  connect?: RoomWhereUniqueInput[] | RoomWhereUniqueInput
-}
-
-export interface RoomUpdateInput {
-  name?: String
-  floor?: FloorUpdateOneWithoutRoomsInput
-}
-
-export interface FloorUpdateManyWithoutChurchInput {
-  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
-  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  disconnect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  delete?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
-  update?: FloorUpdateWithoutChurchInput[] | FloorUpdateWithoutChurchInput
-  upsert?: FloorUpsertWithoutChurchInput[] | FloorUpsertWithoutChurchInput
-}
-
-export interface ChurchUpdateWithoutFloorsDataInput {
-  name?: String
-}
-
-export interface FloorCreateInput {
-  name?: String
-  church: ChurchCreateOneWithoutFloorsInput
-  rooms?: RoomCreateManyWithoutFloorInput
-}
-
-export interface ChurchUpdateOneWithoutFloorsInput {
-  create?: ChurchCreateWithoutFloorsInput
-  connect?: ChurchWhereUniqueInput
-  disconnect?: ChurchWhereUniqueInput
-  delete?: ChurchWhereUniqueInput
-  update?: ChurchUpdateWithoutFloorsInput
-  upsert?: ChurchUpsertWithoutFloorsInput
-}
-
-export interface ChurchCreateOneWithoutFloorsInput {
-  create?: ChurchCreateWithoutFloorsInput
-  connect?: ChurchWhereUniqueInput
-}
-
-export interface FloorUpsertWithoutChurchInput {
-  where: FloorWhereUniqueInput
-  update: FloorUpdateWithoutChurchDataInput
-  create: FloorCreateWithoutChurchInput
-}
-
-export interface ChurchCreateWithoutFloorsInput {
-  name?: String
-}
-
-export interface RoomSubscriptionWhereInput {
-  AND?: RoomSubscriptionWhereInput[] | RoomSubscriptionWhereInput
-  OR?: RoomSubscriptionWhereInput[] | RoomSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: RoomWhereInput
-}
-
-export interface RoomCreateInput {
-  name?: String
-  floor: FloorCreateOneWithoutRoomsInput
-}
-
-export interface ChurchSubscriptionWhereInput {
-  AND?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
-  OR?: ChurchSubscriptionWhereInput[] | ChurchSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: ChurchWhereInput
-}
-
-export interface FloorCreateOneWithoutRoomsInput {
-  create?: FloorCreateWithoutRoomsInput
-  connect?: FloorWhereUniqueInput
-}
-
-export interface RentRequestUpdateInput {
-  status?: REQUEST_STATUS
-  user?: UserUpdateOneInput
-}
-
-export interface FloorWhereInput {
-  AND?: FloorWhereInput[] | FloorWhereInput
-  OR?: FloorWhereInput[] | FloorWhereInput
-  id?: ID_Input
-  id_not?: ID_Input
-  id_in?: ID_Input[] | ID_Input
-  id_not_in?: ID_Input[] | ID_Input
-  id_lt?: ID_Input
-  id_lte?: ID_Input
-  id_gt?: ID_Input
-  id_gte?: ID_Input
-  id_contains?: ID_Input
-  id_not_contains?: ID_Input
-  id_starts_with?: ID_Input
-  id_not_starts_with?: ID_Input
-  id_ends_with?: ID_Input
-  id_not_ends_with?: ID_Input
-  name?: String
-  name_not?: String
-  name_in?: String[] | String
-  name_not_in?: String[] | String
-  name_lt?: String
-  name_lte?: String
-  name_gt?: String
-  name_gte?: String
-  name_contains?: String
-  name_not_contains?: String
-  name_starts_with?: String
-  name_not_starts_with?: String
-  name_ends_with?: String
-  name_not_ends_with?: String
-  church?: ChurchWhereInput
-  rooms_every?: RoomWhereInput
-  rooms_some?: RoomWhereInput
-  rooms_none?: RoomWhereInput
+export interface BookingUpdateWithoutBookeeInput {
+  where: BookingWhereUniqueInput
+  data: BookingUpdateWithoutBookeeDataInput
 }
 
 export interface FloorWhereUniqueInput {
   id?: ID_Input
 }
 
-export interface ChurchUpdateInput {
+export interface BookingUpdateWithoutBookeeDataInput {
+  status?: REQUEST_STATUS
+  startDate?: DateTime
+  endDate?: DateTime
+  room?: RoomUpdateOneWithoutBookingsInput
+}
+
+export interface FloorUpdateInput {
   name?: String
-  floors?: FloorUpdateManyWithoutChurchInput
+  church?: ChurchUpdateOneWithoutFloorsInput
+  rooms?: RoomUpdateManyWithoutFloorInput
 }
 
-export interface UserUpsertNestedInput {
+export interface RoomUpdateOneWithoutBookingsInput {
+  create?: RoomCreateWithoutBookingsInput
+  connect?: RoomWhereUniqueInput
+  disconnect?: RoomWhereUniqueInput
+  delete?: RoomWhereUniqueInput
+  update?: RoomUpdateWithoutBookingsInput
+  upsert?: RoomUpsertWithoutBookingsInput
+}
+
+export interface UserUpsertWithoutBookingsInput {
   where: UserWhereUniqueInput
-  update: UserUpdateDataInput
-  create: UserCreateInput
+  update: UserUpdateWithoutBookingsDataInput
+  create: UserCreateWithoutBookingsInput
 }
 
-export interface ScheduleUpdateInput {
-  roomStatus?: ROOM_STATUS
-  booker?: UserUpdateOneInput
+export interface RoomUpdateWithoutBookingsInput {
+  where: RoomWhereUniqueInput
+  data: RoomUpdateWithoutBookingsDataInput
+}
+
+export interface BookingUpdateWithoutRoomDataInput {
+  status?: REQUEST_STATUS
+  startDate?: DateTime
+  endDate?: DateTime
+  bookee?: UserUpdateOneWithoutBookingsInput
+}
+
+export interface RoomUpdateWithoutBookingsDataInput {
+  name?: String
+  floor?: FloorUpdateOneWithoutRoomsInput
+}
+
+export interface RoomUpdateWithoutFloorInput {
+  where: RoomWhereUniqueInput
+  data: RoomUpdateWithoutFloorDataInput
 }
 
 export interface FloorUpdateOneWithoutRoomsInput {
@@ -1837,40 +1995,29 @@ export interface FloorUpdateOneWithoutRoomsInput {
   upsert?: FloorUpsertWithoutRoomsInput
 }
 
-export interface RentRequestCreateInput {
-  status?: REQUEST_STATUS
-  user: UserCreateOneInput
+export interface FloorUpdateManyWithoutChurchInput {
+  create?: FloorCreateWithoutChurchInput[] | FloorCreateWithoutChurchInput
+  connect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  disconnect?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  delete?: FloorWhereUniqueInput[] | FloorWhereUniqueInput
+  update?: FloorUpdateWithoutChurchInput[] | FloorUpdateWithoutChurchInput
+  upsert?: FloorUpsertWithoutChurchInput[] | FloorUpsertWithoutChurchInput
 }
 
-export interface ChurchUpdateWithoutFloorsInput {
-  where: ChurchWhereUniqueInput
-  data: ChurchUpdateWithoutFloorsDataInput
+export interface FloorUpdateWithoutRoomsInput {
+  where: FloorWhereUniqueInput
+  data: FloorUpdateWithoutRoomsDataInput
 }
 
-export interface PostUpdateInput {
+export interface PostCreateWithoutAuthorInput {
   isPublished?: Boolean
-  title?: String
-  text?: String
-  author?: UserUpdateOneWithoutPostsInput
+  title: String
+  text: String
 }
 
-export interface RentRequestSubscriptionWhereInput {
-  AND?: RentRequestSubscriptionWhereInput[] | RentRequestSubscriptionWhereInput
-  OR?: RentRequestSubscriptionWhereInput[] | RentRequestSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: RentRequestWhereInput
-}
-
-export interface UserUpdateOneWithoutPostsInput {
-  create?: UserCreateWithoutPostsInput
-  connect?: UserWhereUniqueInput
-  disconnect?: UserWhereUniqueInput
-  delete?: UserWhereUniqueInput
-  update?: UserUpdateWithoutPostsInput
-  upsert?: UserUpsertWithoutPostsInput
+export interface FloorUpdateWithoutRoomsDataInput {
+  name?: String
+  church?: ChurchUpdateOneWithoutFloorsInput
 }
 
 export interface UserSubscriptionWhereInput {
@@ -1883,73 +2030,36 @@ export interface UserSubscriptionWhereInput {
   node?: UserWhereInput
 }
 
-export interface UserUpdateWithoutPostsInput {
-  where: UserWhereUniqueInput
-  data: UserUpdateWithoutPostsDataInput
+export interface ChurchUpdateOneWithoutFloorsInput {
+  create?: ChurchCreateWithoutFloorsInput
+  connect?: ChurchWhereUniqueInput
+  disconnect?: ChurchWhereUniqueInput
+  delete?: ChurchWhereUniqueInput
+  update?: ChurchUpdateWithoutFloorsInput
+  upsert?: ChurchUpsertWithoutFloorsInput
 }
 
-export interface ScheduleWhereUniqueInput {
+export interface BookingWhereUniqueInput {
   id?: ID_Input
 }
 
-export interface UserUpdateWithoutPostsDataInput {
-  email?: String
-  password?: String
-  name?: String
+export interface ChurchUpdateWithoutFloorsInput {
+  where: ChurchWhereUniqueInput
+  data: ChurchUpdateWithoutFloorsDataInput
 }
 
-export interface FloorUpdateWithoutRoomsDataInput {
-  name?: String
-  church?: ChurchUpdateOneWithoutFloorsInput
-}
-
-export interface UserUpsertWithoutPostsInput {
+export interface UserUpdateWithoutBookingsInput {
   where: UserWhereUniqueInput
-  update: UserUpdateWithoutPostsDataInput
-  create: UserCreateWithoutPostsInput
+  data: UserUpdateWithoutBookingsDataInput
 }
 
-export interface FloorUpdateInput {
+export interface ChurchUpdateWithoutFloorsDataInput {
   name?: String
-  church?: ChurchUpdateOneWithoutFloorsInput
+}
+
+export interface FloorUpdateWithoutChurchDataInput {
+  name?: String
   rooms?: RoomUpdateManyWithoutFloorInput
-}
-
-export interface PostUpdateWithoutAuthorDataInput {
-  isPublished?: Boolean
-  title?: String
-  text?: String
-}
-
-export interface PostUpdateWithoutAuthorInput {
-  where: PostWhereUniqueInput
-  data: PostUpdateWithoutAuthorDataInput
-}
-
-export interface PostUpdateManyWithoutAuthorInput {
-  create?: PostCreateWithoutAuthorInput[] | PostCreateWithoutAuthorInput
-  connect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  disconnect?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  delete?: PostWhereUniqueInput[] | PostWhereUniqueInput
-  update?: PostUpdateWithoutAuthorInput[] | PostUpdateWithoutAuthorInput
-  upsert?: PostUpsertWithoutAuthorInput[] | PostUpsertWithoutAuthorInput
-}
-
-export interface UserUpdateInput {
-  email?: String
-  password?: String
-  name?: String
-  posts?: PostUpdateManyWithoutAuthorInput
-}
-
-export interface FloorSubscriptionWhereInput {
-  AND?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
-  OR?: FloorSubscriptionWhereInput[] | FloorSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: FloorWhereInput
 }
 
 export interface ChurchUpsertWithoutFloorsInput {
@@ -1958,39 +2068,117 @@ export interface ChurchUpsertWithoutFloorsInput {
   create: ChurchCreateWithoutFloorsInput
 }
 
-export interface UserUpdateNestedInput {
-  where: UserWhereUniqueInput
-  data: UserUpdateDataInput
+export interface BookingCreateWithoutBookeeInput {
+  status?: REQUEST_STATUS
+  startDate: DateTime
+  endDate: DateTime
+  room: RoomCreateOneWithoutBookingsInput
 }
 
-export interface UserWhereUniqueInput {
+export interface FloorUpsertWithoutRoomsInput {
+  where: FloorWhereUniqueInput
+  update: FloorUpdateWithoutRoomsDataInput
+  create: FloorCreateWithoutRoomsInput
+}
+
+export interface PostWhereUniqueInput {
   id?: ID_Input
-  email?: String
+}
+
+export interface UserUpdateOneWithoutPostsInput {
+  create?: UserCreateWithoutPostsInput
+  connect?: UserWhereUniqueInput
+  disconnect?: UserWhereUniqueInput
+  delete?: UserWhereUniqueInput
+  update?: UserUpdateWithoutPostsInput
+  upsert?: UserUpsertWithoutPostsInput
+}
+
+export interface PostUpdateInput {
+  isPublished?: Boolean
+  title?: String
+  text?: String
+  author?: UserUpdateOneWithoutPostsInput
+}
+
+export interface BookingUpsertWithoutBookeeInput {
+  where: BookingWhereUniqueInput
+  update: BookingUpdateWithoutBookeeDataInput
+  create: BookingCreateWithoutBookeeInput
+}
+
+export interface RoomUpsertWithoutBookingsInput {
+  where: RoomWhereUniqueInput
+  update: RoomUpdateWithoutBookingsDataInput
+  create: RoomCreateWithoutBookingsInput
+}
+
+export interface RoomUpsertWithoutFloorInput {
+  where: RoomWhereUniqueInput
+  update: RoomUpdateWithoutFloorDataInput
+  create: RoomCreateWithoutFloorInput
+}
+
+export interface RoomSubscriptionWhereInput {
+  AND?: RoomSubscriptionWhereInput[] | RoomSubscriptionWhereInput
+  OR?: RoomSubscriptionWhereInput[] | RoomSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: RoomWhereInput
+}
+
+export interface UserCreateInput {
+  email: String
+  password: String
+  name: String
+  posts?: PostCreateManyWithoutAuthorInput
+  bookings?: BookingCreateManyWithoutBookeeInput
+}
+
+export interface BookingUpdateManyWithoutRoomInput {
+  create?: BookingCreateWithoutRoomInput[] | BookingCreateWithoutRoomInput
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  disconnect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  delete?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  update?: BookingUpdateWithoutRoomInput[] | BookingUpdateWithoutRoomInput
+  upsert?: BookingUpsertWithoutRoomInput[] | BookingUpsertWithoutRoomInput
 }
 
 export interface Node {
   id: ID_Output
 }
 
-export interface RentRequestPreviousValues {
+export interface BookingPreviousValues {
   id: ID_Output
   status?: REQUEST_STATUS
+  createdAt: DateTime
+  startDate: DateTime
+  endDate: DateTime
 }
 
-export interface RentRequest extends Node {
+export interface PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor?: String
+  endCursor?: String
+}
+
+export interface Booking extends Node {
   id: ID_Output
-  user: User
   status?: REQUEST_STATUS
+  createdAt: DateTime
+  startDate: DateTime
+  endDate: DateTime
+  bookee: User
+  room: Room
 }
 
-export interface Church extends Node {
-  id: ID_Output
-  name?: String
-  floors?: Floor[]
-}
-
-export interface BatchPayload {
-  count: Long
+export interface UserConnection {
+  pageInfo: PageInfo
+  edges: UserEdge[]
+  aggregate: AggregateUser
 }
 
 export interface User extends Node {
@@ -1999,21 +2187,27 @@ export interface User extends Node {
   password: String
   name: String
   posts?: Post[]
+  bookings?: Booking[]
 }
 
-export interface AggregateRentRequest {
-  count: Int
+export interface BookingSubscriptionPayload {
+  mutation: MutationType
+  node?: Booking
+  updatedFields?: String[]
+  previousValues?: BookingPreviousValues
 }
 
-export interface RentRequestConnection {
-  pageInfo: PageInfo
-  edges: RentRequestEdge[]
-  aggregate: AggregateRentRequest
-}
-
-export interface RentRequestEdge {
-  node: RentRequest
+export interface BookingEdge {
+  node: Booking
   cursor: String
+}
+
+export interface BatchPayload {
+  count: Long
+}
+
+export interface AggregateRoom {
+  count: Int
 }
 
 export interface Post extends Node {
@@ -2026,70 +2220,30 @@ export interface Post extends Node {
   author: User
 }
 
-export interface AggregateSchedule {
-  count: Int
-}
-
-export interface ScheduleEdge {
-  node: Schedule
-  cursor: String
-}
-
-export interface ScheduleConnection {
+export interface RoomConnection {
   pageInfo: PageInfo
-  edges: ScheduleEdge[]
-  aggregate: AggregateSchedule
+  edges: RoomEdge[]
+  aggregate: AggregateRoom
 }
 
-export interface RoomEdge {
-  node: Room
-  cursor: String
-}
-
-export interface Floor extends Node {
+export interface RoomPreviousValues {
   id: ID_Output
   name?: String
-  church: Church
-  rooms?: Room[]
 }
 
-export interface AggregateFloor {
-  count: Int
-}
-
-export interface PostSubscriptionPayload {
-  mutation: MutationType
-  node?: Post
-  updatedFields?: String[]
-  previousValues?: PostPreviousValues
-}
-
-export interface FloorConnection {
-  pageInfo: PageInfo
-  edges: FloorEdge[]
-  aggregate: AggregateFloor
-}
-
-export interface PostPreviousValues {
-  id: ID_Output
-  createdAt: DateTime
-  updatedAt: DateTime
-  isPublished: Boolean
-  title: String
-  text: String
-}
-
-export interface ChurchEdge {
-  node: Church
+export interface FloorEdge {
+  node: Floor
   cursor: String
 }
 
-export interface SchedulePreviousValues {
-  id: ID_Output
-  roomStatus?: ROOM_STATUS
+export interface RoomSubscriptionPayload {
+  mutation: MutationType
+  node?: Room
+  updatedFields?: String[]
+  previousValues?: RoomPreviousValues
 }
 
-export interface AggregateUser {
+export interface AggregateChurch {
   count: Int
 }
 
@@ -2100,10 +2254,10 @@ export interface UserSubscriptionPayload {
   previousValues?: UserPreviousValues
 }
 
-export interface UserConnection {
+export interface ChurchConnection {
   pageInfo: PageInfo
-  edges: UserEdge[]
-  aggregate: AggregateUser
+  edges: ChurchEdge[]
+  aggregate: AggregateChurch
 }
 
 export interface UserPreviousValues {
@@ -2118,16 +2272,52 @@ export interface PostEdge {
   cursor: String
 }
 
-export interface Schedule extends Node {
+export interface Church extends Node {
   id: ID_Output
-  booker: User
-  roomStatus?: ROOM_STATUS
+  name?: String
+  floors?: Floor[]
 }
 
-export interface PostConnection {
+export interface AggregateUser {
+  count: Int
+}
+
+export interface PostSubscriptionPayload {
+  mutation: MutationType
+  node?: Post
+  updatedFields?: String[]
+  previousValues?: PostPreviousValues
+}
+
+export interface AggregateBooking {
+  count: Int
+}
+
+export interface PostPreviousValues {
+  id: ID_Output
+  createdAt: DateTime
+  updatedAt: DateTime
+  isPublished: Boolean
+  title: String
+  text: String
+}
+
+export interface RoomEdge {
+  node: Room
+  cursor: String
+}
+
+export interface Floor extends Node {
+  id: ID_Output
+  name?: String
+  church: Church
+  rooms?: Room[]
+}
+
+export interface FloorConnection {
   pageInfo: PageInfo
-  edges: PostEdge[]
-  aggregate: AggregatePost
+  edges: FloorEdge[]
+  aggregate: AggregateFloor
 }
 
 export interface ChurchSubscriptionPayload {
@@ -2137,31 +2327,18 @@ export interface ChurchSubscriptionPayload {
   previousValues?: ChurchPreviousValues
 }
 
-export interface AggregateRoom {
+export interface AggregatePost {
   count: Int
 }
 
-export interface ChurchPreviousValues {
-  id: ID_Output
-  name?: String
-}
-
-export interface FloorEdge {
-  node: Floor
+export interface UserEdge {
+  node: User
   cursor: String
 }
 
-export interface ScheduleSubscriptionPayload {
-  mutation: MutationType
-  node?: Schedule
-  updatedFields?: String[]
-  previousValues?: SchedulePreviousValues
-}
-
-export interface ChurchConnection {
-  pageInfo: PageInfo
-  edges: ChurchEdge[]
-  aggregate: AggregateChurch
+export interface FloorPreviousValues {
+  id: ID_Output
+  name?: String
 }
 
 export interface FloorSubscriptionPayload {
@@ -2171,68 +2348,45 @@ export interface FloorSubscriptionPayload {
   previousValues?: FloorPreviousValues
 }
 
-export interface AggregatePost {
-  count: Int
-}
-
-export interface RentRequestSubscriptionPayload {
-  mutation: MutationType
-  node?: RentRequest
-  updatedFields?: String[]
-  previousValues?: RentRequestPreviousValues
-}
-
-export interface RoomPreviousValues {
-  id: ID_Output
-  name?: String
-}
-
-export interface RoomSubscriptionPayload {
-  mutation: MutationType
-  node?: Room
-  updatedFields?: String[]
-  previousValues?: RoomPreviousValues
-}
-
 export interface Room extends Node {
   id: ID_Output
   name?: String
   floor: Floor
+  bookings?: Booking[]
 }
 
-export interface FloorPreviousValues {
+export interface ChurchPreviousValues {
   id: ID_Output
   name?: String
 }
 
-export interface RoomConnection {
+export interface BookingConnection {
   pageInfo: PageInfo
-  edges: RoomEdge[]
-  aggregate: AggregateRoom
+  edges: BookingEdge[]
+  aggregate: AggregateBooking
 }
 
-export interface PageInfo {
-  hasNextPage: Boolean
-  hasPreviousPage: Boolean
-  startCursor?: String
-  endCursor?: String
+export interface PostConnection {
+  pageInfo: PageInfo
+  edges: PostEdge[]
+  aggregate: AggregatePost
 }
 
-export interface UserEdge {
-  node: User
+export interface ChurchEdge {
+  node: Church
   cursor: String
 }
 
-export interface AggregateChurch {
+export interface AggregateFloor {
   count: Int
 }
 
-/*
-The `Boolean` scalar type represents `true` or `false`.
-*/
-export type Boolean = boolean
+export type DateTime = string
 
-export type Long = string
+/*
+The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
+*/
+export type Int = number
 
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
@@ -2240,17 +2394,17 @@ The `ID` scalar type represents a unique identifier, often used to refetch an ob
 export type ID_Input = string | number
 export type ID_Output = string
 
-export type DateTime = string
+export type Long = string
+
+/*
+The `Boolean` scalar type represents `true` or `false`.
+*/
+export type Boolean = boolean
 
 /*
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
 */
 export type String = string
-
-/*
-The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
-*/
-export type Int = number
 
 export interface Schema {
   query: Query
@@ -2259,83 +2413,73 @@ export interface Schema {
 }
 
 export type Query = {
-  posts: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Post[]>
   users: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<User[]>
+  posts: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Post[]>
   churches: (args: { where?: ChurchWhereInput, orderBy?: ChurchOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Church[]>
   floors: (args: { where?: FloorWhereInput, orderBy?: FloorOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Floor[]>
   rooms: (args: { where?: RoomWhereInput, orderBy?: RoomOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Room[]>
-  schedules: (args: { where?: ScheduleWhereInput, orderBy?: ScheduleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Schedule[]>
-  rentRequests: (args: { where?: RentRequestWhereInput, orderBy?: RentRequestOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RentRequest[]>
-  post: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
+  bookings: (args: { where?: BookingWhereInput, orderBy?: BookingOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<Booking[]>
   user: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  post: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   church: (args: { where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   floor: (args: { where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   room: (args: { where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
-  schedule: (args: { where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
-  rentRequest: (args: { where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
-  postsConnection: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<PostConnection>
+  booking: (args: { where: BookingWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Booking | null>
   usersConnection: (args: { where?: UserWhereInput, orderBy?: UserOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<UserConnection>
+  postsConnection: (args: { where?: PostWhereInput, orderBy?: PostOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<PostConnection>
   churchesConnection: (args: { where?: ChurchWhereInput, orderBy?: ChurchOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ChurchConnection>
   floorsConnection: (args: { where?: FloorWhereInput, orderBy?: FloorOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<FloorConnection>
   roomsConnection: (args: { where?: RoomWhereInput, orderBy?: RoomOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RoomConnection>
-  schedulesConnection: (args: { where?: ScheduleWhereInput, orderBy?: ScheduleOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<ScheduleConnection>
-  rentRequestsConnection: (args: { where?: RentRequestWhereInput, orderBy?: RentRequestOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<RentRequestConnection>
+  bookingsConnection: (args: { where?: BookingWhereInput, orderBy?: BookingOrderByInput, skip?: Int, after?: String, before?: String, first?: Int, last?: Int }, info?: GraphQLResolveInfo | string) => Promise<BookingConnection>
   node: (args: { id: ID_Output }, info?: GraphQLResolveInfo | string) => Promise<Node | null>
 }
 
 export type Mutation = {
-  createPost: (args: { data: PostCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   createUser: (args: { data: UserCreateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
+  createPost: (args: { data: PostCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   createChurch: (args: { data: ChurchCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Church>
   createFloor: (args: { data: FloorCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Floor>
   createRoom: (args: { data: RoomCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Room>
-  createSchedule: (args: { data: ScheduleCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule>
-  createRentRequest: (args: { data: RentRequestCreateInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest>
-  updatePost: (args: { data: PostUpdateInput, where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
+  createBooking: (args: { data: BookingCreateInput }, info?: GraphQLResolveInfo | string) => Promise<Booking>
   updateUser: (args: { data: UserUpdateInput, where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  updatePost: (args: { data: PostUpdateInput, where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   updateChurch: (args: { data: ChurchUpdateInput, where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   updateFloor: (args: { data: FloorUpdateInput, where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   updateRoom: (args: { data: RoomUpdateInput, where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
-  updateSchedule: (args: { data: ScheduleUpdateInput, where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
-  updateRentRequest: (args: { data: RentRequestUpdateInput, where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
-  deletePost: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
+  updateBooking: (args: { data: BookingUpdateInput, where: BookingWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Booking | null>
   deleteUser: (args: { where: UserWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<User | null>
+  deletePost: (args: { where: PostWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Post | null>
   deleteChurch: (args: { where: ChurchWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Church | null>
   deleteFloor: (args: { where: FloorWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Floor | null>
   deleteRoom: (args: { where: RoomWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Room | null>
-  deleteSchedule: (args: { where: ScheduleWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule | null>
-  deleteRentRequest: (args: { where: RentRequestWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest | null>
-  upsertPost: (args: { where: PostWhereUniqueInput, create: PostCreateInput, update: PostUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
+  deleteBooking: (args: { where: BookingWhereUniqueInput }, info?: GraphQLResolveInfo | string) => Promise<Booking | null>
   upsertUser: (args: { where: UserWhereUniqueInput, create: UserCreateInput, update: UserUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<User>
+  upsertPost: (args: { where: PostWhereUniqueInput, create: PostCreateInput, update: PostUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Post>
   upsertChurch: (args: { where: ChurchWhereUniqueInput, create: ChurchCreateInput, update: ChurchUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Church>
   upsertFloor: (args: { where: FloorWhereUniqueInput, create: FloorCreateInput, update: FloorUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Floor>
   upsertRoom: (args: { where: RoomWhereUniqueInput, create: RoomCreateInput, update: RoomUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Room>
-  upsertSchedule: (args: { where: ScheduleWhereUniqueInput, create: ScheduleCreateInput, update: ScheduleUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Schedule>
-  upsertRentRequest: (args: { where: RentRequestWhereUniqueInput, create: RentRequestCreateInput, update: RentRequestUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<RentRequest>
-  updateManyPosts: (args: { data: PostUpdateInput, where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  upsertBooking: (args: { where: BookingWhereUniqueInput, create: BookingCreateInput, update: BookingUpdateInput }, info?: GraphQLResolveInfo | string) => Promise<Booking>
   updateManyUsers: (args: { data: UserUpdateInput, where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyPosts: (args: { data: PostUpdateInput, where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyChurches: (args: { data: ChurchUpdateInput, where: ChurchWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyFloors: (args: { data: FloorUpdateInput, where: FloorWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   updateManyRooms: (args: { data: RoomUpdateInput, where: RoomWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  updateManySchedules: (args: { data: ScheduleUpdateInput, where: ScheduleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  updateManyRentRequests: (args: { data: RentRequestUpdateInput, where: RentRequestWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  deleteManyPosts: (args: { where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  updateManyBookings: (args: { data: BookingUpdateInput, where: BookingWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyUsers: (args: { where: UserWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyPosts: (args: { where: PostWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyChurches: (args: { where: ChurchWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyFloors: (args: { where: FloorWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
   deleteManyRooms: (args: { where: RoomWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  deleteManySchedules: (args: { where: ScheduleWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
-  deleteManyRentRequests: (args: { where: RentRequestWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
+  deleteManyBookings: (args: { where: BookingWhereInput }, info?: GraphQLResolveInfo | string) => Promise<BatchPayload>
 }
 
 export type Subscription = {
-  post: (args: { where?: PostSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<PostSubscriptionPayload>>
   user: (args: { where?: UserSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<UserSubscriptionPayload>>
+  post: (args: { where?: PostSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<PostSubscriptionPayload>>
   church: (args: { where?: ChurchSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ChurchSubscriptionPayload>>
   floor: (args: { where?: FloorSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<FloorSubscriptionPayload>>
   room: (args: { where?: RoomSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<RoomSubscriptionPayload>>
-  schedule: (args: { where?: ScheduleSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<ScheduleSubscriptionPayload>>
-  rentRequest: (args: { where?: RentRequestSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<RentRequestSubscriptionPayload>>
+  booking: (args: { where?: BookingSubscriptionWhereInput }, infoOrQuery?: GraphQLResolveInfo | string) => Promise<AsyncIterator<BookingSubscriptionPayload>>
 }
 
 export class Prisma extends BasePrisma {
@@ -2345,92 +2489,81 @@ export class Prisma extends BasePrisma {
   }
 
   exists = {
-    Post: (where: PostWhereInput): Promise<boolean> => super.existsDelegate('query', 'posts', { where }, {}, '{ id }'),
     User: (where: UserWhereInput): Promise<boolean> => super.existsDelegate('query', 'users', { where }, {}, '{ id }'),
+    Post: (where: PostWhereInput): Promise<boolean> => super.existsDelegate('query', 'posts', { where }, {}, '{ id }'),
     Church: (where: ChurchWhereInput): Promise<boolean> => super.existsDelegate('query', 'churches', { where }, {}, '{ id }'),
     Floor: (where: FloorWhereInput): Promise<boolean> => super.existsDelegate('query', 'floors', { where }, {}, '{ id }'),
     Room: (where: RoomWhereInput): Promise<boolean> => super.existsDelegate('query', 'rooms', { where }, {}, '{ id }'),
-    Schedule: (where: ScheduleWhereInput): Promise<boolean> => super.existsDelegate('query', 'schedules', { where }, {}, '{ id }'),
-    RentRequest: (where: RentRequestWhereInput): Promise<boolean> => super.existsDelegate('query', 'rentRequests', { where }, {}, '{ id }')
+    Booking: (where: BookingWhereInput): Promise<boolean> => super.existsDelegate('query', 'bookings', { where }, {}, '{ id }')
   }
 
   query: Query = {
-    posts: (args, info): Promise<Post[]> => super.delegate('query', 'posts', args, {}, info),
     users: (args, info): Promise<User[]> => super.delegate('query', 'users', args, {}, info),
+    posts: (args, info): Promise<Post[]> => super.delegate('query', 'posts', args, {}, info),
     churches: (args, info): Promise<Church[]> => super.delegate('query', 'churches', args, {}, info),
     floors: (args, info): Promise<Floor[]> => super.delegate('query', 'floors', args, {}, info),
     rooms: (args, info): Promise<Room[]> => super.delegate('query', 'rooms', args, {}, info),
-    schedules: (args, info): Promise<Schedule[]> => super.delegate('query', 'schedules', args, {}, info),
-    rentRequests: (args, info): Promise<RentRequest[]> => super.delegate('query', 'rentRequests', args, {}, info),
-    post: (args, info): Promise<Post | null> => super.delegate('query', 'post', args, {}, info),
+    bookings: (args, info): Promise<Booking[]> => super.delegate('query', 'bookings', args, {}, info),
     user: (args, info): Promise<User | null> => super.delegate('query', 'user', args, {}, info),
+    post: (args, info): Promise<Post | null> => super.delegate('query', 'post', args, {}, info),
     church: (args, info): Promise<Church | null> => super.delegate('query', 'church', args, {}, info),
     floor: (args, info): Promise<Floor | null> => super.delegate('query', 'floor', args, {}, info),
     room: (args, info): Promise<Room | null> => super.delegate('query', 'room', args, {}, info),
-    schedule: (args, info): Promise<Schedule | null> => super.delegate('query', 'schedule', args, {}, info),
-    rentRequest: (args, info): Promise<RentRequest | null> => super.delegate('query', 'rentRequest', args, {}, info),
-    postsConnection: (args, info): Promise<PostConnection> => super.delegate('query', 'postsConnection', args, {}, info),
+    booking: (args, info): Promise<Booking | null> => super.delegate('query', 'booking', args, {}, info),
     usersConnection: (args, info): Promise<UserConnection> => super.delegate('query', 'usersConnection', args, {}, info),
+    postsConnection: (args, info): Promise<PostConnection> => super.delegate('query', 'postsConnection', args, {}, info),
     churchesConnection: (args, info): Promise<ChurchConnection> => super.delegate('query', 'churchesConnection', args, {}, info),
     floorsConnection: (args, info): Promise<FloorConnection> => super.delegate('query', 'floorsConnection', args, {}, info),
     roomsConnection: (args, info): Promise<RoomConnection> => super.delegate('query', 'roomsConnection', args, {}, info),
-    schedulesConnection: (args, info): Promise<ScheduleConnection> => super.delegate('query', 'schedulesConnection', args, {}, info),
-    rentRequestsConnection: (args, info): Promise<RentRequestConnection> => super.delegate('query', 'rentRequestsConnection', args, {}, info),
+    bookingsConnection: (args, info): Promise<BookingConnection> => super.delegate('query', 'bookingsConnection', args, {}, info),
     node: (args, info): Promise<Node | null> => super.delegate('query', 'node', args, {}, info)
   }
 
   mutation: Mutation = {
-    createPost: (args, info): Promise<Post> => super.delegate('mutation', 'createPost', args, {}, info),
     createUser: (args, info): Promise<User> => super.delegate('mutation', 'createUser', args, {}, info),
+    createPost: (args, info): Promise<Post> => super.delegate('mutation', 'createPost', args, {}, info),
     createChurch: (args, info): Promise<Church> => super.delegate('mutation', 'createChurch', args, {}, info),
     createFloor: (args, info): Promise<Floor> => super.delegate('mutation', 'createFloor', args, {}, info),
     createRoom: (args, info): Promise<Room> => super.delegate('mutation', 'createRoom', args, {}, info),
-    createSchedule: (args, info): Promise<Schedule> => super.delegate('mutation', 'createSchedule', args, {}, info),
-    createRentRequest: (args, info): Promise<RentRequest> => super.delegate('mutation', 'createRentRequest', args, {}, info),
-    updatePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'updatePost', args, {}, info),
+    createBooking: (args, info): Promise<Booking> => super.delegate('mutation', 'createBooking', args, {}, info),
     updateUser: (args, info): Promise<User | null> => super.delegate('mutation', 'updateUser', args, {}, info),
+    updatePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'updatePost', args, {}, info),
     updateChurch: (args, info): Promise<Church | null> => super.delegate('mutation', 'updateChurch', args, {}, info),
     updateFloor: (args, info): Promise<Floor | null> => super.delegate('mutation', 'updateFloor', args, {}, info),
     updateRoom: (args, info): Promise<Room | null> => super.delegate('mutation', 'updateRoom', args, {}, info),
-    updateSchedule: (args, info): Promise<Schedule | null> => super.delegate('mutation', 'updateSchedule', args, {}, info),
-    updateRentRequest: (args, info): Promise<RentRequest | null> => super.delegate('mutation', 'updateRentRequest', args, {}, info),
-    deletePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'deletePost', args, {}, info),
+    updateBooking: (args, info): Promise<Booking | null> => super.delegate('mutation', 'updateBooking', args, {}, info),
     deleteUser: (args, info): Promise<User | null> => super.delegate('mutation', 'deleteUser', args, {}, info),
+    deletePost: (args, info): Promise<Post | null> => super.delegate('mutation', 'deletePost', args, {}, info),
     deleteChurch: (args, info): Promise<Church | null> => super.delegate('mutation', 'deleteChurch', args, {}, info),
     deleteFloor: (args, info): Promise<Floor | null> => super.delegate('mutation', 'deleteFloor', args, {}, info),
     deleteRoom: (args, info): Promise<Room | null> => super.delegate('mutation', 'deleteRoom', args, {}, info),
-    deleteSchedule: (args, info): Promise<Schedule | null> => super.delegate('mutation', 'deleteSchedule', args, {}, info),
-    deleteRentRequest: (args, info): Promise<RentRequest | null> => super.delegate('mutation', 'deleteRentRequest', args, {}, info),
-    upsertPost: (args, info): Promise<Post> => super.delegate('mutation', 'upsertPost', args, {}, info),
+    deleteBooking: (args, info): Promise<Booking | null> => super.delegate('mutation', 'deleteBooking', args, {}, info),
     upsertUser: (args, info): Promise<User> => super.delegate('mutation', 'upsertUser', args, {}, info),
+    upsertPost: (args, info): Promise<Post> => super.delegate('mutation', 'upsertPost', args, {}, info),
     upsertChurch: (args, info): Promise<Church> => super.delegate('mutation', 'upsertChurch', args, {}, info),
     upsertFloor: (args, info): Promise<Floor> => super.delegate('mutation', 'upsertFloor', args, {}, info),
     upsertRoom: (args, info): Promise<Room> => super.delegate('mutation', 'upsertRoom', args, {}, info),
-    upsertSchedule: (args, info): Promise<Schedule> => super.delegate('mutation', 'upsertSchedule', args, {}, info),
-    upsertRentRequest: (args, info): Promise<RentRequest> => super.delegate('mutation', 'upsertRentRequest', args, {}, info),
-    updateManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyPosts', args, {}, info),
+    upsertBooking: (args, info): Promise<Booking> => super.delegate('mutation', 'upsertBooking', args, {}, info),
     updateManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyUsers', args, {}, info),
+    updateManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyPosts', args, {}, info),
     updateManyChurches: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyChurches', args, {}, info),
     updateManyFloors: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyFloors', args, {}, info),
     updateManyRooms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyRooms', args, {}, info),
-    updateManySchedules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManySchedules', args, {}, info),
-    updateManyRentRequests: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyRentRequests', args, {}, info),
-    deleteManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyPosts', args, {}, info),
+    updateManyBookings: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'updateManyBookings', args, {}, info),
     deleteManyUsers: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyUsers', args, {}, info),
+    deleteManyPosts: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyPosts', args, {}, info),
     deleteManyChurches: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyChurches', args, {}, info),
     deleteManyFloors: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyFloors', args, {}, info),
     deleteManyRooms: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyRooms', args, {}, info),
-    deleteManySchedules: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManySchedules', args, {}, info),
-    deleteManyRentRequests: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyRentRequests', args, {}, info)
+    deleteManyBookings: (args, info): Promise<BatchPayload> => super.delegate('mutation', 'deleteManyBookings', args, {}, info)
   }
 
   subscription: Subscription = {
-    post: (args, infoOrQuery): Promise<AsyncIterator<PostSubscriptionPayload>> => super.delegateSubscription('post', args, {}, infoOrQuery),
     user: (args, infoOrQuery): Promise<AsyncIterator<UserSubscriptionPayload>> => super.delegateSubscription('user', args, {}, infoOrQuery),
+    post: (args, infoOrQuery): Promise<AsyncIterator<PostSubscriptionPayload>> => super.delegateSubscription('post', args, {}, infoOrQuery),
     church: (args, infoOrQuery): Promise<AsyncIterator<ChurchSubscriptionPayload>> => super.delegateSubscription('church', args, {}, infoOrQuery),
     floor: (args, infoOrQuery): Promise<AsyncIterator<FloorSubscriptionPayload>> => super.delegateSubscription('floor', args, {}, infoOrQuery),
     room: (args, infoOrQuery): Promise<AsyncIterator<RoomSubscriptionPayload>> => super.delegateSubscription('room', args, {}, infoOrQuery),
-    schedule: (args, infoOrQuery): Promise<AsyncIterator<ScheduleSubscriptionPayload>> => super.delegateSubscription('schedule', args, {}, infoOrQuery),
-    rentRequest: (args, infoOrQuery): Promise<AsyncIterator<RentRequestSubscriptionPayload>> => super.delegateSubscription('rentRequest', args, {}, infoOrQuery)
+    booking: (args, infoOrQuery): Promise<AsyncIterator<BookingSubscriptionPayload>> => super.delegateSubscription('booking', args, {}, infoOrQuery)
   }
 }
